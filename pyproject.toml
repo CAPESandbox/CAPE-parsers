@@ -51,8 +51,9 @@ httpretty = "^1.1.4"
 func-timeout = "^4.3.5"
 pre-commit = "^2.19.0"
 
-[tool.poetry.requires-plugins]
-poetry-plugin-export = ">=1.8"
+# Doesnt work on github CI
+# [tool.poetry.requires-plugins]
+# poetry-plugin-export = ">=1.8"
 
 [tool.ruff]
 exclude = [
