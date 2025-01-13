@@ -35,7 +35,7 @@ universal = false
 [tool.poetry.extras]
 maco = ["maco"]
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 black = "^24.3.0"
 isort = "^5.10.1"
 pytest = "7.2.2"
