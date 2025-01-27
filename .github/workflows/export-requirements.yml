@@ -6,6 +6,7 @@ on:
     paths:
       - "pyproject.toml"
       - "poetry.lock"
+      - ".github/workflows/export-requirements.yml"
 
 jobs:
   update:
