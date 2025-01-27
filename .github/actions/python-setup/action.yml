@@ -12,7 +12,7 @@ runs:
       if: ${{ runner.os == 'Linux' }}
       shell: bash
       run: |
-        sudo apt update && sudo apt-get install -y --no-install-recommends python3-dev
+        sudo apt-get update && sudo apt-get install -y --no-install-recommends python3-dev
 
     - name: Install poetry
       shell: bash
