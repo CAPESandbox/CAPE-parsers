@@ -2,11 +2,15 @@ name: Update requirements.txt file
 
 on:
   push:
-    branches: [ main, staging, test]
+    branches: [ main, staging ]
+    paths:
+      - "pyproject.toml"
+      - "poetry.lock"
+
 jobs:
   update:
     if: ${{ !github.event.act }} # skip during local actions testing
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     strategy:
       matrix:
@@ -16,23 +20,22 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Install poetry
-        shell: bash
-        run: |
-          PIP_BREAK_SYSTEM_PACKAGES=1 pip install poetry --user
-          poetry self add poetry-plugin-export
+      # - name: Install poetry
+        # run: pip install poetry
+      # - name: Set up Python ${{ matrix.python-version }}
+        # uses: actions/setup-python@v5
+        # with:
+          # # check-latest: true
+          # python-version: ${{ matrix.python-version }}
+          # cache: 'poetry'
+      # - name: Export requirements.txt
+        # run: poetry export --format requirements.txt --output requirements.txt
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+
+      - uses: divideprojects/poetry-export-requirements-action@v1
         with:
-          check-latest: true
-          python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
-
-      - name: Export requirements.txt
-        shell: bash
-        run: |
-          poetry export --format requirements.txt --output requirements.txt
+          without-hashes: false
+          outfile-name: requirements.txt
 
       - name: Commit changes if any
         # Skip this step if being run by nektos/act
