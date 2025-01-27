@@ -16,6 +16,10 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
+      - name: Install poetry
+        run: |
+          pip install poetry poetry-plugin-export --user
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -23,9 +27,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
-      - name: Install poetry
+      - name: Export requirements.txt
         run: |
-          pip install poetry poetry-plugin-export --user
+          poetry self add  poetry-plugin-export
           poetry export --format requirements.txt --output requirements.txt
 
       - name: Commit changes if any
