@@ -6,7 +6,7 @@ on:
 jobs:
   update:
     if: ${{ !github.event.act }} # skip during local actions testing
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 5
     strategy:
       matrix:
