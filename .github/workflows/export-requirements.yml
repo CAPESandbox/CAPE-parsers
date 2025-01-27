@@ -18,8 +18,7 @@ jobs:
 
       - name: Install poetry
         run: |
-          pip install poetry --user
-          poetry self add poetry-plugin-export
+          pip install poetry poetry-plugin-export --user
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
