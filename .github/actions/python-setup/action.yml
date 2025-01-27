@@ -16,8 +16,9 @@ runs:
 
     - name: Install poetry
       shell: bash
-      run: PIP_BREAK_SYSTEM_PACKAGES=1 pip install poetry poetry-plugin-export
-
+      run: |
+        PIP_BREAK_SYSTEM_PACKAGES=1 pip install poetry
+        poetry self add poetry-plugin-export
     - name: Set up Python ${{ inputs.python-version }}
       uses: actions/setup-python@v5
       with:
