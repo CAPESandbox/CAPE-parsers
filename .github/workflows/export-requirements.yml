@@ -16,24 +16,17 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Install poetry
-        run: |
-          pip install poetry poetry-plugin-export --user
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           check-latest: true
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
-      # - name: Export requirements.txt
-        # run: poetry export --format requirements.txt --output requirements.txt
 
-
-      - uses: divideprojects/poetry-export-requirements-action@v1
-        with:
-          without-hashes: false
-          outfile-name: requirements.txt
+      - name: Install poetry
+        run: |
+          pip install poetry poetry-plugin-export --user
+          poetry export --format requirements.txt --output requirements.txt
 
       - name: Commit changes if any
         # Skip this step if being run by nektos/act
