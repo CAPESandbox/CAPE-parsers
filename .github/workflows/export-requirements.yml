@@ -2,11 +2,7 @@ name: Update requirements.txt file
 
 on:
   push:
-    branches: [ main, staging ]
-    paths:
-      - "pyproject.toml"
-      - "poetry.lock"
-
+    branches: [  ]
 jobs:
   update:
     if: ${{ !github.event.act }} # skip during local actions testing
