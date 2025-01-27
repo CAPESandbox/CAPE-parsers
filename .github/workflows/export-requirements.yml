@@ -30,7 +30,7 @@ jobs:
       - name: Export requirements.txt
         run: |
           poetry self add  poetry-plugin-export
-          poetry export --format requirements.txt --output requirements.txt
+          # poetry export --format requirements.txt --output requirements.txt
 
       - name: Commit changes if any
         # Skip this step if being run by nektos/act
