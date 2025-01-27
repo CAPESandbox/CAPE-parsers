@@ -16,14 +16,17 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      # - name: Install poetry
-        # run: pip install poetry
-      # - name: Set up Python ${{ matrix.python-version }}
-        # uses: actions/setup-python@v5
-        # with:
-          # # check-latest: true
-          # python-version: ${{ matrix.python-version }}
-          # cache: 'poetry'
+      - name: Install poetry
+        run: |
+          pip install poetry --user
+          poetry self add poetry-plugin-export
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          check-latest: true
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
       # - name: Export requirements.txt
         # run: poetry export --format requirements.txt --output requirements.txt
 
