@@ -80,35 +80,46 @@ def extract_config(filebuf):
     if entries:
         c2s = []
         mutexes = []
+        campaign = entries[0]
+        campaign_found = False
         known_campaigns = (
-            "capo",
             "aws",
-            "bing1",
-            "bing2",
-            "bing3",
             "adobe.com",
             "traf",
-            "qwa2",
         )
 
-        for item in entries:
+        for i, item in enumerate(entries):
             if item.count(".") == 3 and re.fullmatch(r"\d+", item.replace(".", "")):
                 c2s.append(item)
+                if i == 1:
+                    campaign_found = True
 
             elif "http" in item:
                 c2s.append(item)
+                if i == 1:
+                    campaign_found = True
 
             elif item.count("-") == 4 and "{" not in item:
                 mutexes.append(item)
+                if i == 1:
+                    campaign_found = True
 
             elif is_hex(item):
                 cfg["RC4 Key"] = item
+                if i == 1:
+                    campaign_found = True
 
             elif "Mozilla" in item:
                 cfg["User-agent"] = item
+                if i == 1:
+                    campaign_found = True
 
-            elif item in known_campaigns:
-                cfg["Campaign"] = item
+            if item in known_campaigns:
+                campaign = item
+                campaign_found = True
+
+        if campaign_found:
+            cfg["Campaign"] = campaign
 
         if c2s:
             cfg["C2"] = c2s
