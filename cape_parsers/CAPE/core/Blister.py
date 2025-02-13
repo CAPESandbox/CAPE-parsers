@@ -425,7 +425,7 @@ if __name__ == "__main__":
 # CAPE: Derived from decrypt_memory()
 def extract_config(data):
     try:
-        pe = pefile.PE(data=data)
+        pe = pefile.PE(data=data, fast_load=True)
     except Exception:
         log.info("Not a PE file")
         return -1

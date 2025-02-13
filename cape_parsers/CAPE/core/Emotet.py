@@ -277,7 +277,7 @@ def extract_config(filebuf):
     conf_dict = {}
     pe = None
     with suppress(Exception):
-        pe = pefile.PE(data=filebuf, fast_load=False)
+        pe = pefile.PE(data=filebuf, fast_load=True)
         code = filebuf[pe.sections[0].PointerToRawData : pe.sections[0].PointerToRawData + pe.sections[0].SizeOfRawData]
 
     if pe is None:

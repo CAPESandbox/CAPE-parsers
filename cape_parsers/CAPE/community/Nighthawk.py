@@ -100,7 +100,7 @@ def _get_section_data(data, section_name, take_first=True):
     """
 
     try:
-        pe = pefile.PE(data=data, fast_load=False)
+        pe = pefile.PE(data=data, fast_load=True)
     except Exception:
         pe = None
 

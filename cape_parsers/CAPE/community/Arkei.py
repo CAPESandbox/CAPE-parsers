@@ -67,7 +67,7 @@ def extract_config(data):
     # Try with new method
 
     #config_dict["Strings"] = []
-    pe = pefile.PE(data=data, fast_load=False)
+    pe = pefile.PE(data=data, fast_load=True)
     image_base = pe.OPTIONAL_HEADER.ImageBase
     domain = ""
     uri = ""
@@ -112,7 +112,7 @@ def extract_config(data):
 
         except Exception:
             continue
-        
+
     if domain and uri:
         config_dict.setdefault("C2", []).append(f"{domain}{uri}")
 

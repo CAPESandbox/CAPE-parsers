@@ -1,9 +1,11 @@
 import base64
+import json
 import re
+import struct
+from contextlib import suppress
+
 import pefile
 import yara
-import json
-import struct
 
 RULE_SOURCE_BUILD_ID = """rule LummaBuildId
 {
@@ -230,12 +232,9 @@ def extract_config(data):
     # try to load as a PE
     pe = None
     image_base = None
-    try:
-        pe = pefile.PE(data=data)
+    with suppress(Exception):
+        pe = pefile.PE(data=data, fast_load=True)
         image_base = pe.OPTIONAL_HEADER.ImageBase
-    except Exception:
-        pass
-
 
     offset = yara_scan(data, RULE_SOURCE_LUMMA)
     if offset:

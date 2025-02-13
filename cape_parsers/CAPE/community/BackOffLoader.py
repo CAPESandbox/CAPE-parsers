@@ -16,7 +16,7 @@ def RC4(key, data):
 
 def extract_config(data):
     config_data = {}
-    pe = pefile.PE(data=data)
+    pe = pefile.PE(data=data, fast_load=True)
     for section in pe.sections:
         if b".data" in section.Name:
             data = section.get_data()

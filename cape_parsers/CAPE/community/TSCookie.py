@@ -138,7 +138,7 @@ def load_resource(pe, data):
 
 def extract_config(data):
     try:
-        dll = pefile.PE(data=data)
+        dll = pefile.PE(data=data, fast_load=True)
     except Exception:
         return None
 

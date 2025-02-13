@@ -145,7 +145,7 @@ def extract_config(filebuf):
         return {}
     pe = False
     with suppress(pefile.PEFormatError, ValueError):
-        pe = pefile.PE(data=filebuf)
+        pe = pefile.PE(data=filebuf, fast_load=True)
         for section in pe.sections:
             if b".rsrc" in section.Name:
                 break

@@ -70,7 +70,7 @@ def decodeREvilConfig(config_key, config_data):
 def extract_config(data):
     config_data = ""
     config_key = ""
-    pe = pefile.PE(data=data)
+    pe = pefile.PE(data=data, fast_load=True)
 
     if len(pe.sections) == 5:
         section_names = getSectionNames(pe.sections)

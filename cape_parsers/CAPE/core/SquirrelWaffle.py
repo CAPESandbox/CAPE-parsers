@@ -54,7 +54,7 @@ def extract_config(data):
     config = {}
     pe = None
     try:
-        pe = pefile.PE(data=data)
+        pe = pefile.PE(data=data, fast_load=False)
     except Exception:
         return config
 

@@ -107,7 +107,7 @@ def extract_config(filebuf):
     cfg = {}
     constants_offset = None
     pe = pefile.PE(data=filebuf)
-    matches = yara_rules.match(data=filebuf)
+    matches = yara_rules.match(data=filebuf, fast_load=True)
     if not matches:
         return
 

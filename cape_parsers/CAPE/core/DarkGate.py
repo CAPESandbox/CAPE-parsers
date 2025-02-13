@@ -93,7 +93,7 @@ def decode(data):
 
 def extract_config(data):
     with suppress(pefile.PEFormatError):
-        pe = pefile.PE(data=data)
+        pe = pefile.PE(data=data, fast_load=True)
         for section in pe.sections:
             if b"CODE" in section.Name:
                 return decode(section.get_data())

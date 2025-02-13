@@ -22,7 +22,7 @@ def is_hex(hex_string):
 
 def extract_config(filebuf):
     cfg = {}
-    pe = pefile.PE(data=filebuf)
+    pe = pefile.PE(data=filebuf, fast_load=True)
 
     section_data = {
         "data": "",
