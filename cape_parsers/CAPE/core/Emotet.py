@@ -532,7 +532,7 @@ def extract_config(filebuf):
         c2_funcs = c2_funcs_from_match(yara_matches, "$snippetY", filebuf)
     elif first_match(yara_matches, "$snippetZ"):
         c2_funcs = c2_funcs_from_match(yara_matches, "$snippetZ", filebuf)
-    if delta:
+    if delta and not conf_dict:
         if c2list_va_offset:
             c2_list_va = struct.unpack("I", filebuf[c2list_va_offset + delta : c2list_va_offset + delta + 4])[0]
             c2_list_rva = c2_list_va - image_base
