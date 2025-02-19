@@ -298,10 +298,8 @@ def extract_config(filebuf):
         c2list_va_offset = first_match(yara_matches, "$snippet3")
         c2_list_va = struct.unpack("I", filebuf[c2list_va_offset + 2 : c2list_va_offset + 6])[0]
         c2_list_rva = c2_list_va & 0xFFFF if c2_list_va - image_base > 0x20000 else c2_list_va - image_base
-        try:
+        with suppress(pefile.PEFormatError):
             c2_list_offset = pe.get_offset_from_rva(c2_list_rva)
-        except pefile.PEFormatError:
-            pass
 
         while True:
             try:
@@ -320,10 +318,8 @@ def extract_config(filebuf):
         c2list_va_offset = first_match(yara_matches, "$snippet4")
         c2_list_va = struct.unpack("I", filebuf[c2list_va_offset + 8 : c2list_va_offset + 12])[0]
         c2_list_rva = c2_list_va & 0xFFFF if c2_list_va - image_base > 0x20000 else c2_list_va - image_base
-        try:
+        with suppress(pefile.PEFormatError):
             c2_list_offset = pe.get_offset_from_rva(c2_list_rva)
-        except pefile.PEFormatError:
-            pass
         while True:
             try:
                 ip = struct.unpack("<I", filebuf[c2_list_offset : c2_list_offset + 4])[0]
