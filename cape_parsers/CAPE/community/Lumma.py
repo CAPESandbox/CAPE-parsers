@@ -3,9 +3,9 @@ import json
 import re
 import struct
 from contextlib import suppress
-
 import pefile
 import yara
+
 
 RULE_SOURCE_BUILD_ID = """rule LummaBuildId
 {
@@ -37,6 +37,32 @@ RULE_SOURCE_LUMMA = """rule LummaConfig
         $chunk_1
 }"""
 
+RULE_SOURCE_LUMMA_NEW = """rule LummaConfigNew
+{
+    meta:
+        author = "YungBinary"
+    strings:
+        $key_nonce = { 
+            88 44 24 ??
+            B8 ?? ?? ?? ??
+            BF ?? ?? ?? ??
+            B9 08 00 00 00
+            96
+            F3 A5
+            96
+            B8 ?? ?? ?? ??
+        }
+        $encrypted_array = {
+            0F B6 C?
+            C1 E0 07
+            8D 80 ?? ?? ?? ??
+            8D 74 24 10
+            FF
+        }
+    condition:
+        uint16(0) == 0x5A4D and all of them
+}"""
+
 
 def yara_scan_generator(raw_data, rule_source):
     yara_rules = yara.compile(source=rule_source)
@@ -45,7 +71,7 @@ def yara_scan_generator(raw_data, rule_source):
     for match in matches:
         for block in match.strings:
             for instance in block.instances:
-                yield instance.offset
+                yield instance.offset, block.identifier
 
 
 def yara_scan(raw_data, rule_source):
@@ -211,7 +237,7 @@ def find_encrypted_c2_blocks(data):
 def get_build_id(pe, data):
     build_id = ""
     image_base = pe.OPTIONAL_HEADER.ImageBase
-    for offset in yara_scan_generator(data, RULE_SOURCE_BUILD_ID):
+    for offset, _ in yara_scan_generator(data, RULE_SOURCE_BUILD_ID):
         try:
             build_id_data_rva = struct.unpack('i', data[offset + 2 : offset + 6])[0]
             build_id_dword_offset = pe.get_offset_from_rva(build_id_data_rva - image_base)
@@ -236,32 +262,66 @@ def extract_config(data):
         pe = pefile.PE(data=data, fast_load=True)
         image_base = pe.OPTIONAL_HEADER.ImageBase
 
-    offset = yara_scan(data, RULE_SOURCE_LUMMA)
-    if offset:
-        key = data[offset + 16 : offset + 48]
-        nonce = b"\x00\x00\x00\x00" + data[offset + 48 : offset + 56]
+    # Parse the latest version
+    key = None
+    nonce = None
+    for offset, rule_identifier in yara_scan_generator(data, RULE_SOURCE_LUMMA_NEW):
+        if rule_identifier == '$key_nonce':
+            key_rva = struct.unpack('i', data[offset + 5 : offset + 9])[0]
+            key_offset = pe.get_offset_from_rva(key_rva - image_base)
+            key = data[key_offset : key_offset + 32]
+            nonce_rva = struct.unpack('i', data[offset + 24 : offset + 28])[0]
+            nonce_offset = pe.get_offset_from_rva(nonce_rva - image_base)
+            nonce = b'\x00\x00\x00\x00' + data[nonce_offset : nonce_offset + 8]
+        elif rule_identifier == '$encrypted_array':
+            encrypted_strings_rva = struct.unpack('i', data[offset + 8 : offset + 12])[0]
+            encrypted_strings_offset = pe.get_offset_from_rva(encrypted_strings_rva - image_base)
+            step_size = 0x80
+            counter = 2
+            for i in range(12):
+                encrypted_string = data[encrypted_strings_offset:encrypted_strings_offset+40]
+                decoded_c2 = chacha20_xor(encrypted_string, key, nonce, counter).split(b'\x00', 1)[0]
+                if contains_non_printable(decoded_c2):
+                    break
+                config_dict["C2"].append(decoded_c2.decode())
+                encrypted_strings_offset = encrypted_strings_offset + step_size
+                counter += 2
 
-        for i in range(9):
-            try:
-                start_offset = offset + 56 + (i * 4)
-                end_offset = start_offset + 4
-                c2_dword_rva = struct.unpack('i', data[start_offset : end_offset])[0]
-                if pe:
-                    c2_dword_offset = pe.get_offset_from_rva(c2_dword_rva - image_base)
-                else:
-                    c2_dword_offset = c2_dword_rva - image_base
 
-                c2_encrypted = data[c2_dword_offset : c2_dword_offset + 0x80]
-                counters = [0, 2, 4, 6, 8, 10, 12, 14, 16]
-                for counter in counters:
-                    decrypted = chacha20_xor(c2_encrypted, key, nonce, counter)
-                    c2 = extract_c2_domain(decrypted)
-                    if c2 is not None and len(c2) > 10:
-                        config_dict["C2"].append(c2.decode())
-                        break
+    # If no C2s try with the version after Jan 21, 2025
+    if not config_dict["C2"]:
+        offset = yara_scan(data, RULE_SOURCE_LUMMA)
+        if offset:
+            key = data[offset + 16 : offset + 48]
+            nonce = b"\x00\x00\x00\x00" + data[offset + 48 : offset + 56]
 
-            except Exception:
-                continue
+            for i in range(9):
+                try:
+                    start_offset = offset + 56 + (i * 4)
+                    end_offset = start_offset + 4
+                    c2_dword_rva = struct.unpack('i', data[start_offset : end_offset])[0]
+                    if pe:
+                        c2_dword_offset = pe.get_offset_from_rva(c2_dword_rva - image_base)
+                    else:
+                        c2_dword_offset = c2_dword_rva - image_base
+
+                    c2_encrypted = data[c2_dword_offset : c2_dword_offset + 0x80]
+                    counters = [0, 2, 4, 6, 8, 10, 12, 14, 16]
+                    for counter in counters:
+                        decrypted = chacha20_xor(c2_encrypted, key, nonce, counter)
+                        c2 = extract_c2_domain(decrypted)
+                        if c2 is not None and len(c2) > 10:
+                            config_dict["C2"].append(c2.decode())
+                            break
+
+                except Exception:
+                    continue
+
+        if config_dict["C2"] and pe is not None:
+            # If found C2 servers try to find build ID
+            build_id = get_build_id(pe, data)
+            if build_id:
+                config_dict["Build ID"] = build_id
 
 
     # If no C2s try with version prior to Jan 21, 2025
@@ -293,11 +353,12 @@ def extract_config(data):
         except Exception:
             return
 
-    if config_dict["C2"] and pe is not None:
-        # If found C2 servers try to find build ID
-        build_id = get_build_id(pe, data)
-        if build_id:
-            config_dict["Build ID"] = build_id
+        if config_dict["C2"] and pe is not None:
+            # If found C2 servers try to find build ID
+            build_id = get_build_id(pe, data)
+            if build_id:
+                config_dict["Build ID"] = build_id
+
 
     return config_dict
 
