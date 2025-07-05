@@ -6,19 +6,18 @@ from cape_parsers.CAPE.community.Lumma import extract_config
 
 
 def test_lumma():
-    with open("tests/data/malware/5d58bc449693815f6fb0755a364c4cd3a8e2a81188e431d4801f2fb0b1c2de8f", "rb") as data:
+    with open("tests/data/malware/ede02b81615e9011835b26039b5963db0eb9c4569e5535da58c6aefa7c1b7217", "rb") as data:
         conf = extract_config(data.read())
         assert conf == {
             "C2": [
-                "delaylacedmn.site",
-                "writekdmsnu.site",
-                "agentyanlark.site",
-                "bellykmrebk.site",
-                "underlinemdsj.site",
-                "commandejorsk.site",
-                "possiwreeste.site",
-                "famikyjdiag.site",
-                "agentyanlark.site",
-            ],
-            'Build ID': 'z9sSW4--'
+                "roriwfq.xyz/auyw",
+                "narrathfpt.top/tekq",
+                "escczlv.top/bufi",
+                "localixbiw.top/zlpa",
+                "korxddl.top/qidz",
+                "stochalyqp.xyz/alfp",
+                "diecam.top/laur",
+                "citellcagt.top/gjtu",
+                "saokwe.xyz/plxa",
+            ]
         }
