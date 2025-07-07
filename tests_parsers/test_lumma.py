@@ -19,5 +19,6 @@ def test_lumma():
                 "diecam.top/laur",
                 "citellcagt.top/gjtu",
                 "saokwe.xyz/plxa",
-            ]
+            ],
+            "Build ID": "490cef3c0ae4b5f900506d5988954245474b4975ef"
         }
