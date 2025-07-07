@@ -37,12 +37,12 @@ RULE_SOURCE_LUMMA = """rule LummaConfig
         $chunk_1
 }"""
 
-RULE_SOURCE_LUMMA_NEW = """rule LummaConfigNew
+RULE_SOURCE_LUMMA_NEW_KEYS = """rule LummaConfigNewKeys
 {
     meta:
         author = "YungBinary"
     strings:
-        $key_nonce = { 
+        $key_nonce = {
             88 44 24 ??
             B8 ?? ?? ?? ??
             BF ?? ?? ?? ??
@@ -52,6 +52,15 @@ RULE_SOURCE_LUMMA_NEW = """rule LummaConfigNew
             96
             B8 ?? ?? ?? ??
         }
+    condition:
+        uint16(0) == 0x5A4D and $key_nonce
+}"""
+
+RULE_SOURCE_LUMMA_NEW_ENCRYPTED_C2 = """rule LummaConfigNewEncryptedStrings
+{
+    meta:
+        author = "YungBinary"
+    strings:
         $encrypted_array = {
             0F B6 C?
             C1 E0 07
@@ -60,8 +69,9 @@ RULE_SOURCE_LUMMA_NEW = """rule LummaConfigNew
             FF
         }
     condition:
-        uint16(0) == 0x5A4D and all of them
+        uint16(0) == 0x5A4D and $encrypted_array
 }"""
+
 
 
 def yara_scan_generator(raw_data, rule_source):
@@ -71,7 +81,7 @@ def yara_scan_generator(raw_data, rule_source):
     for match in matches:
         for block in match.strings:
             for instance in block.instances:
-                yield instance.offset, block.identifier
+                yield instance.offset
 
 
 def yara_scan(raw_data, rule_source):
@@ -237,7 +247,7 @@ def find_encrypted_c2_blocks(data):
 def get_build_id(pe, data):
     build_id = ""
     image_base = pe.OPTIONAL_HEADER.ImageBase
-    for offset, _ in yara_scan_generator(data, RULE_SOURCE_BUILD_ID):
+    for offset in yara_scan_generator(data, RULE_SOURCE_BUILD_ID):
         try:
             build_id_data_rva = struct.unpack('i', data[offset + 2 : offset + 6])[0]
             build_id_dword_offset = pe.get_offset_from_rva(build_id_data_rva - image_base)
@@ -251,6 +261,15 @@ def get_build_id(pe, data):
             continue
     return build_id
 
+def get_build_id_new(data):
+    build_id = ""
+    pattern = b'123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\x00'
+    offset = data.find(pattern)
+    if offset != -1:
+        build_id = data[offset + len(pattern):].split(b'\x00', 1)[0]
+        build_id = build_id.decode()
+
+    return build_id
 
 def extract_config(data):
     config_dict = {"C2": []}
@@ -265,15 +284,16 @@ def extract_config(data):
     # Parse the latest version
     key = None
     nonce = None
-    for offset, rule_identifier in yara_scan_generator(data, RULE_SOURCE_LUMMA_NEW):
-        if rule_identifier == '$key_nonce':
-            key_rva = struct.unpack('i', data[offset + 5 : offset + 9])[0]
-            key_offset = pe.get_offset_from_rva(key_rva - image_base)
-            key = data[key_offset : key_offset + 32]
-            nonce_rva = struct.unpack('i', data[offset + 24 : offset + 28])[0]
-            nonce_offset = pe.get_offset_from_rva(nonce_rva - image_base)
-            nonce = b'\x00\x00\x00\x00' + data[nonce_offset : nonce_offset + 8]
-        elif rule_identifier == '$encrypted_array':
+    for offset in yara_scan_generator(data, RULE_SOURCE_LUMMA_NEW_KEYS):
+        key_rva = struct.unpack('i', data[offset + 5 : offset + 9])[0]
+        key_offset = pe.get_offset_from_rva(key_rva - image_base)
+        key = data[key_offset : key_offset + 32]
+        nonce_rva = struct.unpack('i', data[offset + 24 : offset + 28])[0]
+        nonce_offset = pe.get_offset_from_rva(nonce_rva - image_base)
+        nonce = b'\x00\x00\x00\x00' + data[nonce_offset : nonce_offset + 8]
+
+    if key and nonce:
+        for offset in yara_scan_generator(data, RULE_SOURCE_LUMMA_NEW_ENCRYPTED_C2):
             encrypted_strings_rva = struct.unpack('i', data[offset + 8 : offset + 12])[0]
             encrypted_strings_offset = pe.get_offset_from_rva(encrypted_strings_rva - image_base)
             step_size = 0x80
@@ -286,6 +306,12 @@ def extract_config(data):
                 config_dict["C2"].append(decoded_c2.decode())
                 encrypted_strings_offset = encrypted_strings_offset + step_size
                 counter += 2
+
+        if config_dict["C2"]:
+            # If found C2 servers try to find build ID
+            build_id = get_build_id_new(data)
+            if build_id:
+                config_dict["Build ID"] = build_id
 
 
     # If no C2s try with the version after Jan 21, 2025
