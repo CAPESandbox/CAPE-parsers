@@ -23,7 +23,7 @@ maco = "1.1.8"
 yara-python = ">=4.5.1"
 dnfile = ">=0.15.1"
 dncil = ">=1.0.2"
-unicorn = "2.1.1"
+unicorn = ">=2.1.1"
 rat-king-parser = ">=4.1.0"
 
 ruff = ">=0.7.2"
