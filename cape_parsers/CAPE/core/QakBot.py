@@ -493,7 +493,7 @@ def extract_config(filebuf):
         config = parse_config(filebuf[: len(filebuf) - 20])
         for k, v in config.items():
             end_config.setdefault(k, v)
-    return end_config
+    return {"raw": end_config}
 
 
 if __name__ == "__main__":

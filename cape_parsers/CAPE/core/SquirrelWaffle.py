@@ -68,9 +68,9 @@ def extract_config(data):
                 try:
                     decrypted = xor_data(line, chunks[i + 1]).decode()
                     if "\r\n" in decrypted and "|" not in decrypted:
-                        config["IP Blocklist"] = list(filter(None, decrypted.split("\r\n")))
+                        config.setdefault("raw", {})["IP Blocklist"] = list(filter(None, decrypted.split("\r\n")))
                     elif "|" in decrypted and "." in decrypted and "\r\n" not in decrypted:
-                        config["URLs"] = list(filter(None, decrypted.split("|")))
+                        config["CNCs"] = list(filter(None, decrypted.split("|")))
                 except Exception:
                     continue
         matches = yara_rules.match(data=data)
@@ -84,5 +84,6 @@ def extract_config(data):
                     c2key_offset = item.instances[0].offset
                     key_rva = struct.unpack("i", data[c2key_offset + 28 : c2key_offset + 32])[0] - pe.OPTIONAL_HEADER.ImageBase
                     key_offset = pe.get_offset_from_rva(key_rva)
-                    config["C2 key"] = string_from_offset(data, key_offset).decode()
+                    config["cryptokey"] = string_from_offset(data, key_offset).decode()
+                    # ToDo key type
                     return config

@@ -75,7 +75,7 @@ def yara_scan(raw_data):
 
 def extract_config(filebuf):
     yara_hit = yara_scan(filebuf)
-    cfg = {}
+    config = {}
 
     for hit in yara_hit:
         if hit.rule == "Oyster":
@@ -121,14 +121,16 @@ def extract_config(filebuf):
                         if c2_matches:
                             c2.extend(c2_matches)
 
-                cfg = {
-                    "C2": c2,
-                    "Dll Version": dll_version,
-                    "Strings": str_vals,
+                config = {
+                    "CNCs": c2,
+                    "raw": {
+                        "Dll Version": dll_version,
+                        "Strings": str_vals,
+                    },
                 }
             except Exception as e:
                 log.error("Error: %s", e)
-    return cfg
+    return config
 
 
 if __name__ == "__main__":

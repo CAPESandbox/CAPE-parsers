@@ -37,7 +37,7 @@ def rc4_decrypt(key, ciphertext):
 
 
 def swap32(x):
-    return int.from_bytes(x.to_bytes(4, byteorder='little'), byteorder='big', signed=False)
+    return int.from_bytes(x.to_bytes(4, byteorder="little"), byteorder="big", signed=False)
 
 
 def decode(buffer):
@@ -104,7 +104,7 @@ def extract_config(filebuf):
             break
         c2list_offset += delta
     if c2list != []:
-        cfg["C2s"] = sorted(list(set(c2list)))
+        cfg["CNCs"] = sorted(list(set(c2list)))
     return cfg
 
 

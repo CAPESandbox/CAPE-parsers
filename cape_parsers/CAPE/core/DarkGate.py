@@ -70,7 +70,7 @@ def parse_config(data, conf_map):
         except KeyError:
             config[f"unknown_{k}"] = v
 
-    return config
+    return {"raw": config}
 
 
 def decode(data):
@@ -81,7 +81,7 @@ def decode(data):
             strval = translate_string(strval.decode("utf-8"))
             decoded_str = base64.b64decode(strval)
             if decoded_str.startswith(b"http"):
-                config["C2"] = [x for x in decoded_str.decode("utf-8").split("|") if x.strip() != ""]
+                config["CNCs"] = [x for x in decoded_str.decode("utf-8").split("|") if x.strip() != ""]
             elif b"1=Yes" in decoded_str or b"1=No" in decoded_str:
                 config.update(parse_config(decoded_str, config_map_1))
             else:
@@ -102,7 +102,7 @@ def extract_config(data):
         config = {}
         for item in data.split(b"\r\n")[:-1]:
             if item.startswith(b"0="):
-                config["C2"] = [x for x in item[2:].decode("utf-8").split("|") if x.strip() != ""]
+                config["CNCs"] = [x for x in item[2:].decode("utf-8").split("|") if x.strip() != ""]
             else:
                 config.update(parse_config(item, config_map_2))
         return config

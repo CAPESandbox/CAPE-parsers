@@ -64,7 +64,7 @@ def extract_config(filebuf):
 
         c2_address = string_from_offset(filebuf, yara_offset + 0x2E8)
         if c2_address:
-            return_conf["c2_address"] = c2_address
+            return_conf["CNCs"] = c2_address
 
         c2_url = string_from_offset(filebuf, yara_offset + 0xE8)
         if c2_url:

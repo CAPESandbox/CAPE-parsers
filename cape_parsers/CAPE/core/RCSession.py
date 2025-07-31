@@ -16,9 +16,7 @@ DESCRIPTION = "RCSession configuration parser."
 AUTHOR = "kevoreilly"
 
 import struct
-
 import pefile
-
 import yara
 
 rule_source = """
@@ -99,24 +97,24 @@ def extract_config(filebuf):
 
     c2_address = str(tmp_config[156 : 156 + MAX_IP_STRING_SIZE])
     if c2_address:
-        end_config.setdefault("c2_address", []).append(c2_address)
+        end_config.setdefault("CNCs", []).append(c2_address)
     c2_address = str(tmp_config[224 : 224 + MAX_IP_STRING_SIZE])
     if c2_address:
-        end_config.setdefault("c2_address", []).append(c2_address)
+        end_config.setdefault("CNCs", []).append(c2_address)
     installdir = unicode_string_from_offset(bytes(tmp_config), 0x2A8, 128)
     if installdir:
-        end_config["directory"] = installdir
+        end_config.setdefault("raw", {})["directory"] = installdir
     executable = unicode_string_from_offset(tmp_config, 0x4B0, 128)
     if executable:
-        end_config["filename"] = executable
+        end_config.setdefault("raw", {})["filename"] = executable
     servicename = unicode_string_from_offset(tmp_config, 0x530, 128)
     if servicename:
-        end_config["servicename"] = servicename
+        end_config.setdefault("raw", {})["servicename"] = servicename
     displayname = unicode_string_from_offset(tmp_config, 0x738, 128)
     if displayname:
-        end_config["servicedisplayname"] = displayname
+        end_config.setdefault("raw", {})["servicedisplayname"] = displayname
     description = unicode_string_from_offset(tmp_config, 0x940, 512)
     if description:
-        end_config["servicedescription"] = description
+        end_config.setdefault("raw", {})["servicedescription"] = description
 
     return end_config

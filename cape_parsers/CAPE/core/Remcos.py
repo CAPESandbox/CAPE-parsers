@@ -25,34 +25,34 @@ FLAG = {b"\x00": "Disable", b"\x01": "Enable"}
 
 # From JPCERT and Elastic Security Labs
 idx_list = {
-    0: "Host:Port:Password", # String containing "domain:port:enable_tls" separated by the "\x1e" characte
-    1: "Botnet", # Name of the botnet
-    2: "Connect interval", # Interval in second between connection attempt to C2
-    3: "Install flag", # Install REMCOS on the machine host
-    4: "Setup HKCU\\Run", # Enable setup of the persistence in the registry
-    5: "Setup HKLM\\Run", # Enable setup of the persistence in the registry
+    0: "Host:Port:Password",  # String containing "domain:port:enable_tls" separated by the "\x1e" characte
+    1: "Botnet",  # Name of the botnet
+    2: "Connect interval",  # Interval in second between connection attempt to C2
+    3: "Install flag",  # Install REMCOS on the machine host
+    4: "Setup HKCU\\Run",  # Enable setup of the persistence in the registry
+    5: "Setup HKLM\\Run",  # Enable setup of the persistence in the registry
     6: "Setup HKLM\\Explorer\\Run",
-    7: "Keylog file max size", # Maximum size of the keylogging data before rotation
-    8: "Setup HKLM\\Explorer\\Run", # Enable setup of the persistence in the registry
-    9: "Install parent directory", # Parent directory of the install folder. Integer mapped to an hardcoded path
-    10: "Install filename", # Name of the REMCOS binary once installed
+    7: "Keylog file max size",  # Maximum size of the keylogging data before rotation
+    8: "Setup HKLM\\Explorer\\Run",  # Enable setup of the persistence in the registry
+    9: "Install parent directory",  # Parent directory of the install folder. Integer mapped to an hardcoded path
+    10: "Install filename",  # Name of the REMCOS binary once installed
     11: "Startup value",
-    12: "Hide file", # Enable super hiding the install directory and binary as well as setting them to read only
-    13: "Process injection flag", # 	Enable running the malware injected in another process
-    14: "Mutex", # String used as the malware mutex and registry key
-    15: "Keylogger mode", # Set keylogging capability. Keylogging mode, 0 = disabled, 1 = keylogging everything, 2 = keylogging specific window(s)
-    16: "Keylogger parent directory", # Parent directory of the keylogging folder. Integer mapped to an hardcoded path
-    17: "Keylogger filename", # Filename of the keylogged data
-    18: "Keylog crypt", # Enable encryption RC4 of the keylogger data file
-    19: "Hide keylog file", # Enable super hiding of the keylogger data file
-    20: "Screenshot flag", # Enable screen recording capability
-    21: "Screenshot time", # The time interval in minute for capturing each screenshot
-    22: "Take Screenshot option", # Enable screen recording for specific window names
-    23: "Take screenshot title", # String containing window names separated by the ";” character
-    24: "Take screenshot time", #s The time interval in second for capturing each screenshot when a specific window name is found in the current foreground window title
-    25: "Screenshot parent directory", # Parent directory of the screenshot folder. Integer mapped to an hardcoded path
-    26: "Screenshot folder", # Name of the screenshot folder
-    27: "Screenshot crypt flag", # Enable encryption of screenshots
+    12: "Hide file",  # Enable super hiding the install directory and binary as well as setting them to read only
+    13: "Process injection flag",  # 	Enable running the malware injected in another process
+    14: "Mutex",  # String used as the malware mutex and registry key
+    15: "Keylogger mode",  # Set keylogging capability. Keylogging mode, 0 = disabled, 1 = keylogging everything, 2 = keylogging specific window(s)
+    16: "Keylogger parent directory",  # Parent directory of the keylogging folder. Integer mapped to an hardcoded path
+    17: "Keylogger filename",  # Filename of the keylogged data
+    18: "Keylog crypt",  # Enable encryption RC4 of the keylogger data file
+    19: "Hide keylog file",  # Enable super hiding of the keylogger data file
+    20: "Screenshot flag",  # Enable screen recording capability
+    21: "Screenshot time",  # The time interval in minute for capturing each screenshot
+    22: "Take Screenshot option",  # Enable screen recording for specific window names
+    23: "Take screenshot title",  # String containing window names separated by the ";" character
+    24: "Take screenshot time",  # s The time interval in second for capturing each screenshot when a specific window name is found in the current foreground window title
+    25: "Screenshot parent directory",  # Parent directory of the screenshot folder. Integer mapped to an hardcoded path
+    26: "Screenshot folder",  # Name of the screenshot folder
+    27: "Screenshot crypt flag",  # Enable encryption of screenshots
     28: "Mouse option",
     29: "Unknown29",
     30: "Delete file",
@@ -60,28 +60,28 @@ idx_list = {
     32: "Unknown32",
     33: "Unknown33",
     34: "Unknown34",
-    35: "Audio recording flag", # Enable audio recording capability
-    36: "Audio record time", # Duration in second of each audio recording
-    37: "Audio parent directory", # Parent directory of the audio recording folder. Integer mapped to an hardcoded path
-    38: "Audio folder", # Name of the audio recording folder
-    39: "Disable UAC flage", # Disable UAC in the registry
-    40: "Logging mode", # Set logging mode: 0 = disabled, 1 = minimized in tray, 2 = console logging
-    41: "Connect delay", # Delay in second before the first connection attempt to the C2
-    42: "Keylogger specific window names", # String containing window names separated by the ";” character
-    43: "Browser cleaning on startup flag", # Enable cleaning web browsers’ cookies and logins on REMCOS startup
-    44: "Browser cleaning only for the first run flag", # Enable web browsers cleaning only on the first run of Remcos
-    45: "Browser cleaning sleep time in minutes", # Sleep time in minute before cleaning the web browsers
-    46: "UAC bypass flag", # Enable UAC bypass capability
+    35: "Audio recording flag",  # Enable audio recording capability
+    36: "Audio record time",  # Duration in second of each audio recording
+    37: "Audio parent directory",  # Parent directory of the audio recording folder. Integer mapped to an hardcoded path
+    38: "Audio folder",  # Name of the audio recording folder
+    39: "Disable UAC flage",  # Disable UAC in the registry
+    40: "Logging mode",  # Set logging mode: 0 = disabled, 1 = minimized in tray, 2 = console logging
+    41: "Connect delay",  # Delay in second before the first connection attempt to the C2
+    42: "Keylogger specific window names",  # String containing window names separated by the ";"" character
+    43: "Browser cleaning on startup flag",  # Enable cleaning web browsers cookies and logins on REMCOS startup
+    44: "Browser cleaning only for the first run flag",  # Enable web browsers cleaning only on the first run of Remcos
+    45: "Browser cleaning sleep time in minutes",  # Sleep time in minute before cleaning the web browsers
+    46: "UAC bypass flag",  # Enable UAC bypass capability
     47: "Unkown47",
-    48: "Install directory", # Name of the install directory
-    49: "Keylogger root directory", # Name of the keylogger directory
-    50: "Watchdog flag", # Enable watchdog capability
+    48: "Install directory",  # Name of the install directory
+    49: "Keylogger root directory",  # Name of the keylogger directory
+    50: "Watchdog flag",  # Enable watchdog capability
     51: "Unknown51",
-    52: "License", # License serial
-    53: "Screenshot mouse drawing flag", # Enable drawing the mouse on each screenshot
-    54: "TLS raw certificate (base64)", # Certificate in raw format used with tls enabled C2 communication
-    55: "TLS key (base64)", # Key of the certificate
-    56: "TLS raw peer certificate (base64)", # C2 public certificate in raw format
+    52: "License",  # License serial
+    53: "Screenshot mouse drawing flag",  # Enable drawing the mouse on each screenshot
+    54: "TLS raw certificate (base64)",  # Certificate in raw format used with tls enabled C2 communication
+    55: "TLS key (base64)",  # Key of the certificate
+    56: "TLS raw peer certificate (base64)",  # C2 public certificate in raw format
     57: "TLS client private key (base64)",
     58: "TLS server certificate (base64)",
     59: "Unknown59",
@@ -107,7 +107,15 @@ setup_list = {
     8: "%ProgramData%",
 }
 
-utf_16_string_list = ["Keylogger specific window names", "Install filename", "Install directory", "Startup value", "Keylogger filename", "Take screenshot title", "Keylogger root directory"]
+utf_16_string_list = [
+    "Keylogger specific window names",
+    "Install filename",
+    "Install directory",
+    "Startup value",
+    "Keylogger filename",
+    "Take screenshot title",
+    "Keylogger root directory",
+]
 logger = logging.getLogger(__name__)
 
 
@@ -170,7 +178,7 @@ def extract_config(filebuf):
             key = blob[1 : keylen + 1]
             decrypted_data = ARC4.new(key).decrypt(blob[keylen + 1 :])
             p_data = OrderedDict()
-            p_data["Version"] = check_version(filebuf)
+            config["version"] = check_version(filebuf)
 
             configs = re.split(rb"\|\x1e\x1e\x1f\|", decrypted_data)
 
@@ -200,7 +208,7 @@ def extract_config(filebuf):
                 if isinstance(v, bytes):
                     with suppress(Exception):
                         v = v.decoed()
-                config[k] = v
+                config.setdefault("raw", {})[k] = v
 
     except Exception as e:
         logger.error(f"Caught an exception: {e}")

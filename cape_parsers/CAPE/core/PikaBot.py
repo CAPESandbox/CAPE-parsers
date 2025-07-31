@@ -105,13 +105,13 @@ def get_config(input_data):
     c2s = get_c2s(data, number_of_c2s)
 
     return {
-        "Version": version,
-        "Campaign Name": campaign_name,
-        "Registry Key": registry_key,
-        "User Agent": user_agent,
+        "version": version,
+        "campaign": campaign_name,
+        "raw": {"Registry Key": registry_key},
+        "user_agent": user_agent,
         # "request_headers": request_headers,
         # "api_cmds": api_cmds,
-        "C2s": c2s,
+        "CNCs": c2s,
     }
 
 
@@ -152,7 +152,7 @@ def extract_config(filebuf):
                     out = wide_finder(test_out_ptxt).decode("utf-16le")
         if out:
             url = get_url(out)
-            return {"C2": [url], "PowerShell": out}
+            return {"CNCs": [url], "raw": {"PowerShell": out}}
 
     if data:
         yara_hit = yara_scan(filebuf)

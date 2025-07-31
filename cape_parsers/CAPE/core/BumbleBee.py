@@ -6,6 +6,7 @@ import traceback
 from contextlib import suppress
 
 import pefile
+
 # import regex as re
 # test
 import re
@@ -106,7 +107,7 @@ def extract_config_data(data, pe, config_match):
 
 
 def extract_2024(pe, filebuf):
-    cfg = {}
+    config = {}
     rc4key_init_offset = 0
     botid_init_offset = 0
     port_init_offset = 0
@@ -142,45 +143,55 @@ def extract_2024(pe, filebuf):
     key_offset = pe.get_dword_from_offset(rc4key_init_offset + 57)
     key_rva = pe.get_rva_from_offset(rc4key_init_offset + 61) + key_offset
     key = pe.get_string_at_rva(key_rva)
-    cfg["RC4 key"] = key.decode()
 
+    botid = ""
     botid_offset = pe.get_dword_from_offset(botid_init_offset + 51)
     botid_rva = pe.get_rva_from_offset(botid_init_offset + 55) + botid_offset
     botid_len_offset = pe.get_dword_from_offset(botidlgt_init_offset + 31)
     botid_data = pe.get_data(botid_rva)[:botid_len_offset]
     with suppress(Exception):
         botid = ARC4.new(key).decrypt(botid_data).split(b"\x00")[0].decode()
-        cfg["Botid"] = botid
 
+    port = ""
     port_offset = pe.get_dword_from_offset(port_init_offset + 23)
     port_rva = pe.get_rva_from_offset(port_init_offset + 27) + port_offset
     port_len_offset = pe.get_dword_from_offset(botidlgt_init_offset + 4)
     port_data = pe.get_data(port_rva)[:port_len_offset]
     with suppress(Exception):
         port = ARC4.new(key).decrypt(port_data).split(b"\x00")[0].decode()
-        cfg["Port"] = port
 
     dgaseed_offset = pe.get_dword_from_offset(dga1_init_offset + 15)
     dgaseed_rva = pe.get_rva_from_offset(dga1_init_offset + 19) + dgaseed_offset
     dgaseed_data = pe.get_qword_at_rva(dgaseed_rva)
-    cfg["DGA seed"] = str(int(dgaseed_data))
 
     numdga_offset = pe.get_dword_from_offset(dga1_init_offset + 22)
     numdga_rva = pe.get_rva_from_offset(dga1_init_offset + 26) + numdga_offset
     numdga_data = pe.get_string_at_rva(numdga_rva)
-    cfg["Number DGA domains"] = numdga_data.decode()
 
     domainlen_offset = pe.get_dword_from_offset(dga2_init_offset + 3)
     domainlen_rva = pe.get_rva_from_offset(dga2_init_offset + 7) + domainlen_offset
     domainlen_data = pe.get_string_at_rva(domainlen_rva)
-    cfg["Domain length"] = domainlen_data.decode()
 
     tld_offset = pe.get_dword_from_offset(dga2_init_offset + 37)
     tld_rva = pe.get_rva_from_offset(dga2_init_offset + 41) + tld_offset
     tld_data = pe.get_string_at_rva(tld_rva).decode()
-    cfg["TLD"] = tld_data
 
-    return cfg
+    config = {
+        "dga_seed": str(int(dgaseed_data)),
+        "cryptokey": key.decode(),
+        "cryptokey_type": "RC4",
+        "raw": {
+            "TLD": tld_data,
+            "Domain length": domainlen_data.decode(),
+            "Number DGA domains": numdga_data.decode(),
+        },
+    }
+    if port:
+        config["raw"]["port"] = port
+    if botid:
+        config["botnet"] = botid
+
+    return config
 
 
 def extract_config(data):

@@ -5,6 +5,7 @@ HAVE_MLW_CONFIGS = False
 with suppress(ImportError):
     # We do not install this by default as is outdated now, but if installed will be imported
     from malwareconfig.common import Decoder
+
     HAVE_MLW_CONFIGS = True
 
 

@@ -16,9 +16,7 @@ DESCRIPTION = "RedLeaf configuration parser."
 AUTHOR = "kevoreilly"
 
 import struct
-
 import pefile
-
 import yara
 
 rule_source = """
@@ -90,21 +88,21 @@ def extract_config(filebuf):
     end_config = {}
     c2_address = tmp_config[8 : 8 + MAX_IP_STRING_SIZE]
     if c2_address:
-        end_config.setdefault("c2_address", []).append(c2_address)
+        end_config.setdefault("CNCs", []).append(c2_address)
     c2_address = tmp_config[0x48 : 0x48 + MAX_IP_STRING_SIZE]
     if c2_address:
-        end_config.setdefault("c2_address", []).append(c2_address)
+        end_config.setdefault("CNCs", []).append(c2_address)
     c2_address = tmp_config[0x88 : 0x88 + MAX_IP_STRING_SIZE]
     if c2_address:
-        end_config.setdefault("c2_address", []).append(c2_address)
+        end_config.setdefault("CNCs", []).append(c2_address)
     missionid = string_from_offset(tmp_config, 0x1EC)
     if missionid:
-        end_config["missionid"] = missionid
+        end_config.setdefault("raw", {})["missionid"] = missionid
     mutex = unicode_string_from_offset(tmp_config, 0x508)
     if mutex:
         end_config["mutex"] = mutex
     key = string_from_offset(tmp_config, 0x832)
     if key:
-        end_config["key"] = key
+        end_config["cryptokey"] = key
 
     return end_config

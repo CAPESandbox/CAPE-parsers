@@ -66,7 +66,7 @@ def extract_config(data):
 
     # Try with new method
 
-    #config_dict["Strings"] = []
+    # config_dict["Strings"] = []
     pe = pefile.PE(data=data, fast_load=True)
     image_base = pe.OPTIONAL_HEADER.ImageBase
     domain = ""
@@ -84,17 +84,17 @@ def extract_config(data):
             if rule_str_name.startswith("$decode"):
                 key_rva = data[str_decode_offset + 3 : str_decode_offset + 7]
                 encoded_str_rva = data[str_decode_offset + 8 : str_decode_offset + 12]
-                #dword_rva = data[str_decode_offset + 21 : str_decode_offset + 25]
+                # dword_rva = data[str_decode_offset + 21 : str_decode_offset + 25]
 
             key_offset = pe.get_offset_from_rva(struct.unpack("i", key_rva)[0] - image_base)
             encoded_str_offset = pe.get_offset_from_rva(struct.unpack("i", encoded_str_rva)[0] - image_base)
-            #dword_offset = struct.unpack("i", dword_rva)[0]
-            #dword_name = f"dword_{hex(dword_offset)[2:]}"
+            # dword_offset = struct.unpack("i", dword_rva)[0]
+            # dword_name = f"dword_{hex(dword_offset)[2:]}"
 
             key = data[key_offset : key_offset + str_size]
             encoded_str = data[encoded_str_offset : encoded_str_offset + str_size]
             decoded_str = xor_data(encoded_str, key).decode()
-            #config_dict["Strings"].append({dword_name : decoded_str})
+            # config_dict["Strings"].append({dword_name : decoded_str})
 
             if last_str in ("http://", "https://"):
                 domain += decoded_str
@@ -104,7 +104,7 @@ def extract_config(data):
                 domain = decoded_str
             elif uri == "" and decoded_str.startswith("/") and decoded_str[-4] == ".":
                 uri = decoded_str
-            elif last_str[0] == '/' and last_str[-1] == '/':
+            elif last_str[0] == "/" and last_str[-1] == "/":
                 botnet_id = decoded_str
 
             last_str = decoded_str

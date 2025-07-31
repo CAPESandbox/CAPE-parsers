@@ -92,7 +92,8 @@ def extract_config(data):
         c2_host = dtxt[offset : offset + c2_size].decode("utf-16")
         offset += c2_size
         c2_port = struct.unpack("H", dtxt[offset : offset + 2])[0]
-        cfg["C2"] = f"{c2_host}:{c2_port}"
+        # ToDo missed schema
+        cfg["CNCs"] = f"{c2_host}:{c2_port}"
         offset += 2
         # unk1 = dtxt[offset : offset + 7]
         offset += 7
@@ -104,7 +105,7 @@ def extract_config(data):
         offset += 2
         runkey_size = struct.unpack("i", dtxt[offset : offset + 4])[0]
         offset += 4
-        cfg["Run Key Name"] = dtxt[offset : offset + runkey_size].decode("utf-16")
+        cfg.setdefault("raw", {})["Run Key Name"] = dtxt[offset : offset + runkey_size].decode("utf-16")
     except struct.error:
         # there is a lot of failed data validation muting it
         return

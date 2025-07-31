@@ -26,11 +26,12 @@ def parse_http_config(rc4_key: bytes, data: bytes) -> dict:
 
     def read_str(length: int):
         nonlocal offset
-        value = data[offset:offset + length].decode("utf-8", errors="replace")
+        value = data[offset : offset + length].decode("utf-8", errors="replace")
         offset += length
         return value
 
-    config["config_rc4_key"] = rc4_key.hex()
+    config["cryptokey"] = rc4_key.hex()
+    config["cryptokey_type"] = "RC4"
     config["agent_type"] = f"{read('<I'):8X}"
     config["use_ssl"] = read("<B")
     host_count = read("<I")
@@ -58,7 +59,8 @@ def parse_http_config(rc4_key: bytes, data: bytes) -> dict:
     config["sleep_delay"] = read("<I")
     config["jitter_delay"] = read("<I")
 
-    return config
+    return {"raw": config}
+
 
 def extract_config(filebuf: bytes) -> dict:
     pe = pefile.PE(data=filebuf, fast_load=True)
@@ -78,9 +80,9 @@ def extract_config(filebuf: bytes) -> dict:
             pos = start_offset + 1
             continue
 
-        encrypted_data = data[pos:pos + key_offset]
+        encrypted_data = data[pos : pos + key_offset]
         pos += key_offset
-        rc4_key = data[pos:pos + 16]
+        rc4_key = data[pos : pos + 16]
 
         if key_offset == 787:
             pass

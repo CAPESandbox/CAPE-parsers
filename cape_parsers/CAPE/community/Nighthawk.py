@@ -4,6 +4,7 @@ import json
 import struct
 
 import pefile
+
 # import regex as re
 import re
 from Cryptodome.Cipher import AES

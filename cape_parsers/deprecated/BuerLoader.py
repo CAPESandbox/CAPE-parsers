@@ -35,5 +35,5 @@ def extract_config(filebuf):
         with suppress(Exception):
             dec = decrypt_string(item.lstrip(b"\x00").rstrip(b"\x00").decode())
         if "dll" not in dec and " " not in dec and ";" not in dec and "." in dec:
-            cfg.setdefault("address", []).append(dec)
+            cfg.setdefault("CNCs", []).append(dec)
         return cfg

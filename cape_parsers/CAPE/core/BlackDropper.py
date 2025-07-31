@@ -55,7 +55,7 @@ def extract_config(data: bytes) -> dict:
         return {}
 
     rdata_data = rdata_section.get_data()
-    patterns = [br"Builder\.dll\x00", br"Builder\.exe\x00"]
+    patterns = [rb"Builder\.dll\x00", rb"Builder\.exe\x00"]
     matches = []
     for pattern in patterns:
         matches.extend(re.finditer(pattern, rdata_data))
@@ -66,7 +66,7 @@ def extract_config(data: bytes) -> dict:
         end = min(len(rdata_data), match.end() + 1024)
         found_strings.update(re.findall(b"[\x20-\x7E]{4,}?\x00", rdata_data[start:end]))
 
-    result = {}
+    config = {}
     urls = []
     directories = []
     campaign = ""
@@ -74,7 +74,7 @@ def extract_config(data: bytes) -> dict:
     if found_strings:
         key = get_year(pe)
         if not key:
-            return result
+            return {}
         for string in found_strings:
             with suppress(UnicodeDecodeError):
                 decoded_string = string.decode("utf-8").rstrip("\x00")
@@ -88,9 +88,14 @@ def extract_config(data: bytes) -> dict:
             elif re.match(r"^(?![A-Z]{6,}$)[a-zA-Z0-9\-=]{6,}$", decoded_string):
                 campaign = decoded_string
 
-        result = {"urls": sorted(urls), "directories": directories, "campaign": campaign}
+        if urls:
+            config["CNCs"] = sorted(urls)
+        if campaign:
+            config["campaign"] = campaign
+        if directories:
+            config["raw"] = {"directories": directories}
 
-    return result
+    return config
 
 
 if __name__ == "__main__":

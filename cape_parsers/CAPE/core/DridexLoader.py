@@ -132,7 +132,7 @@ def extract_config(filebuf):
         port = str(struct.unpack("H", filebuf[c2_offset + 4 : c2_offset + 6])[0])
 
         if c2_address and port:
-            cfg.setdefault("address", []).append(f"{c2_address}:{port}")
+            cfg.setdefault("CNCs", []).append(f"{c2_address}:{port}")
 
         c2_offset += 6 + delta
 
@@ -155,7 +155,8 @@ def extract_config(filebuf):
                 )
             for item in raw.split(b"\x00"):
                 if len(item) == LEN_BLOB_KEY - 1:
-                    cfg["RC4 key"] = item.split(b";", 1)[0].decode()
+                    cfg["cryptokey"] = item.split(b";", 1)[0].decode()
+                    cfg["cryptokey_type"] = "RC4"
 
     if botnet_code:
         botnet_rva = struct.unpack("i", filebuf[botnet_code + 23 : botnet_code + 27])[0] - image_base
@@ -163,7 +164,7 @@ def extract_config(filebuf):
         with suppress(struct.error):
             botnet_offset = pe.get_offset_from_rva(botnet_rva)
             botnet_id = struct.unpack("H", filebuf[botnet_offset : botnet_offset + 2])[0]
-            cfg["Botnet ID"] = str(botnet_id)
+            cfg["botnet"] = str(botnet_id)
 
     return cfg
 

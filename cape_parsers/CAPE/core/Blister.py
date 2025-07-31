@@ -542,16 +542,18 @@ def extract_config(data):
             injection_method = "Process hollowing IE or Werfault"
 
     config = {
-        "Flag": hex(flag),
-        "Payload export hash": hex(u32(payload_export_hash)),
-        "Payload filename": w_payload_filename_and_cmdline,
-        "Compressed data size": hex(u32(compressed_data_size)),
-        "Uncompressed data size": hex(u32(uncompressed_data_size)),
-        "Rabbit key": binascii.hexlify(key).decode(),
-        "Rabbit IV": binascii.hexlify(iv).decode(),
-        "Persistence": persistance,
-        "Sleep after injection": sleep_after_injection,
-        "Injection method": injection_method,
+        "raw": {
+            "Flag": hex(flag),
+            "Payload export hash": hex(u32(payload_export_hash)),
+            "Payload filename": w_payload_filename_and_cmdline,
+            "Compressed data size": hex(u32(compressed_data_size)),
+            "Uncompressed data size": hex(u32(uncompressed_data_size)),
+            "Rabbit key": binascii.hexlify(key).decode(),
+            "Rabbit IV": binascii.hexlify(iv).decode(),
+            "Persistence": persistance,
+            "Sleep after injection": sleep_after_injection,
+            "Injection method": injection_method,
+        }
     }
 
     return config

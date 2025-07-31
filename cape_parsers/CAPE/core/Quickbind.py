@@ -57,12 +57,7 @@ def extract_config(filebuf):
             encrypted_string = struct.unpack_from(data_format, data, offset)[0]
 
             with suppress(IndexError, UnicodeDecodeError, ValueError):
-                decrypted_result = (
-                    ARC4.new(key)
-                    .decrypt(encrypted_string)
-                    .replace(b"\x00", b"")
-                    .decode("utf-8")
-                )
+                decrypted_result = ARC4.new(key).decrypt(encrypted_string).replace(b"\x00", b"").decode("utf-8")
 
             if decrypted_result and all(32 <= ord(char) <= 127 for char in decrypted_result):
                 if len(decrypted_result) > 2:
@@ -105,12 +100,13 @@ def extract_config(filebuf):
                     campaign_found = True
 
             elif is_hex(item):
-                cfg["RC4 Key"] = item
+                cfg["cryptokey"] = item
+                cfg["cryptokey_type"] = "RC4"
                 if i == 1:
                     campaign_found = True
 
             elif "Mozilla" in item:
-                cfg["User-agent"] = item
+                cfg["user_agent"] = item
                 if i == 1:
                     campaign_found = True
 
@@ -119,13 +115,13 @@ def extract_config(filebuf):
                 campaign_found = True
 
         if campaign_found:
-            cfg["Campaign"] = campaign
+            cfg["campaign"] = campaign
 
         if c2s:
-            cfg["C2"] = c2s
+            cfg["CNCs"] = c2s
 
         if mutexes:
-            cfg["Mutex"] = list(set(mutexes))
+            cfg["mutex"] = list(set(mutexes))
 
     return cfg
 

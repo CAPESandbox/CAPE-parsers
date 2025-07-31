@@ -72,6 +72,6 @@ def extract_config(data):
     configdata = unzip_config(data)
 
     if configdata:
-        raw_config["config"] = decode(configdata)
+        raw_config["raw"] = decode(configdata)
 
     return raw_config

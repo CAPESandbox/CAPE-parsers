@@ -30,7 +30,7 @@ rule Azorult
         cape_type = "Azorult Payload"
     strings:
         $ref_c2 = {6A 00 6A 00 6A 00 6A 00 68 ?? ?? ?? ?? FF 55 F0 8B D8 C7 47 10 ?? ?? ?? ?? 90 C7 45 B0 C0 C6 2D 00 6A 04 8D 45 B0 50 6A 06 53 FF 55 D4}
-   condition:
+    condition:
         uint16(0) == 0x5A4D and all of them
 }
 """
@@ -48,16 +48,18 @@ def extract_config(filebuf):
             for instance in block.instances:
                 try:
                     cnc_offset = struct.unpack("i", instance.matched_data[21:25])[0]
-                    cnc = pe.get_data(cnc_offset-image_base, 32).split(b"\x00")[0]
+                    cnc = pe.get_data(cnc_offset - image_base, 32).split(b"\x00")[0]
                     if cnc:
                         if not cnc.startswith(b"http"):
                             cnc = b"http://" + cnc
-                        return {"cncs": [cnc.decode()]}
+                        return {"CNCs": [cnc.decode()]}
                 except Exception as e:
                     log.error("Error parsing Azorult config: %s", e)
     return {}
 
+
 if __name__ == "__main__":
     import sys
+
     with open(sys.argv[1], "rb") as f:
         print(extract_config(f.read()))

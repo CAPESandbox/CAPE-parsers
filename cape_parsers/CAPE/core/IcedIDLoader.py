@@ -19,7 +19,7 @@ import pefile
 
 
 def extract_config(filebuf):
-    cfg = {}
+    config = {}
     pe = None
     with suppress(Exception):
         pe = pefile.PE(data=filebuf, fast_load=False)
@@ -35,9 +35,9 @@ def extract_config(filebuf):
                 if n > 32:
                     break
             campaign, c2 = struct.unpack("I30s", bytes(dec))
-            cfg["C2"] = c2.split(b"\00", 1)[0].decode()
-            cfg["Campaign"] = campaign
-            return cfg
+            config["CNCs"] = c2.split(b"\00", 1)[0].decode()
+            config["campaign"] = campaign
+            return config
 
 
 if __name__ == "__main__":

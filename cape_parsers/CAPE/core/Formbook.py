@@ -12,11 +12,11 @@ def extract_config(data):
             i += 1
     elif "www." not in lines[0]:
         return
-    config_dict["C2"] = lines[i]
+    config_dict["CNCs"] = lines[i]
     decoys = []
     i += 1
     while len(lines[i]) > 0:
         decoys.append(lines[i])
         i += 1
-    config_dict["Decoys"] = decoys
+    config_dict.setdefault("raw", {})["Decoys"] = decoys
     return config_dict

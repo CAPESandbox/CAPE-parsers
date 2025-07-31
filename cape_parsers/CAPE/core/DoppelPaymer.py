@@ -72,7 +72,9 @@ def extract_config(filebuf):
         for item in raw.split(b"\x00"):
             data = "".join(convert_char(c) for c in item)
             if len(data) == 406:
-                config["RSA public key"] = data
+                config.setdefault("cryptokey", data)
+                # ToDO proper naming here
+                config.setdefault("raw", {})["cryptokey_type"] = "RSA public key"
             elif len(data) > 1 and "\\x" not in data:
-                config["strings"] = data
+                config.setdefault("raw", {})["strings"] = data
     return config

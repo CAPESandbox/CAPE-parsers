@@ -17,9 +17,7 @@ AUTHOR = "kevoreilly"
 
 
 import struct
-
 import pefile
-
 import yara
 
 rule_source = """
@@ -103,16 +101,16 @@ def extract_config(filebuf):
 
                 c2_address = unicode_from_va(pe, yara_offset + values[1])
                 if c2_address:
-                    tmp_config.setdefault("c2_address", []).append(c2_address)
+                    tmp_config.setdefault("CNCs", []).append(c2_address)
 
                 if key == "$connect_3":
                     c2_address = unicode_from_va(pe, yara_offset + values[2])
                     if c2_address:
-                        tmp_config.setdefault("c2_address", []).append(c2_address)
+                        tmp_config.setdefault("CNCs", []).append(c2_address)
             else:
                 c2_address = unicode_from_va(pe, yara_offset + values[0])
                 if c2_address:
-                    tmp_config["c2_address"] = c2_address
+                    tmp_config["CNCs"] = c2_address
 
                 filepath = unicode_from_va(pe, yara_offset + values[1])
                 if filepath:
@@ -122,4 +120,4 @@ def extract_config(filebuf):
                 if injectionprocess:
                     tmp_config["injectionprocess"] = injectionprocess
 
-    return tmp_config
+    return {"raw": tmp_config}

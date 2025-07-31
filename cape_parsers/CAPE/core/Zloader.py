@@ -91,15 +91,15 @@ def parse_config(data):
     parsed["TLS SNI"] = dns_data.split(b"~")[0].decode("utf-8").rstrip()
     parsed["DNS C2"] = dns_data.split(b"~")[1].decode("utf-8").strip()
     dns_ips = []
-    dns_ips.append(socket.inet_ntoa(data[1204:1208].split(b"\x00",1)[0]))
+    dns_ips.append(socket.inet_ntoa(data[1204:1208].split(b"\x00", 1)[0]))
     dns_ip_data = data[1208:1248]
     for i in range(10):
-        chunk = dns_ip_data[i * 4:(i + 1) * 4]
+        chunk = dns_ip_data[i * 4 : (i + 1) * 4]
         chunk = chunk.rstrip(b"\x00")
         if chunk:
             dns_ips.append(socket.inet_ntoa(chunk))
     parsed["DNS Servers"] = dns_ips
-    return parsed
+    return {"raw": parsed}
 
 
 def extract_config(filebuf):
@@ -186,8 +186,8 @@ def extract_config(filebuf):
         conf_data = filebuf[conf_offset : conf_offset + conf_size]
         raw = decrypt_rc4(key, conf_data)
         items = list(filter(None, raw.split(b"\x00\x00")))
-        end_config["Botnet name"] = items[0].decode("utf-8")
-        end_config["Campaign ID"] = items[1].decode("utf-8")
+        end_config["botnet"] = items[0].decode("utf-8")
+        end_config["campaign"] = items[1].decode("utf-8")
         for item in items:
             item = item.lstrip(b"\x00")
             if item.startswith(b"http"):
@@ -208,7 +208,7 @@ def extract_config(filebuf):
         conf = decrypt_rc4(decrypt_key, conf_data)
         end_config = parse_config(conf)
 
-    return end_config
+    return {"raw": end_config}
 
 
 if __name__ == "__main__":

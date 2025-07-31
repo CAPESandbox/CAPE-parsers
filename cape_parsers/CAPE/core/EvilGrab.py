@@ -16,9 +16,7 @@ DESCRIPTION = "EvilGrab configuration parser."
 AUTHOR = "kevoreilly"
 
 import struct
-
 import pefile
-
 import yara
 
 rule_source = """
@@ -88,21 +86,22 @@ def extract_config(filebuf):
 
         yara_offset = int(yara_matches[key])
 
+        # ToDo missed schema
         c2_address = string_from_va(pe, yara_offset + values[0])
         if c2_address:
-            end_config["c2_address"] = c2_address
+            end_config["CNCs"] = c2_address
         port = str(struct.unpack("h", filebuf[yara_offset + values[1] : yara_offset + values[1] + 2])[0])
         if port:
-            end_config["port"] = [port, "tcp"]
+            end_config.setdefault("raw", {})["port"] = [port, "tcp"]
         missionid = string_from_va(pe, yara_offset + values[3])
         if missionid:
-            end_config["missionid"] = missionid
+            end_config.setdefault("raw", {})["missionid"] = missionid
         version = string_from_va(pe, yara_offset + values[4])
         if version:
             end_config["version"] = version
         injectionprocess = string_from_va(pe, yara_offset + values[5])
         if injectionprocess:
-            end_config["injectionprocess"] = injectionprocess
+            end_config.setdefault("raw", {})["injectionprocess"] = injectionprocess
         if key != "$configure3":
             mutex = string_from_va(pe, yara_offset - values[6])
             if mutex:

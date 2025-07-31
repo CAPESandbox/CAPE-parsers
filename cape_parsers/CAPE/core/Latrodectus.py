@@ -197,12 +197,15 @@ def extract_config(filebuf):
                     str_vals.remove(item)
 
                 cfg = {
-                    "C2": c2,
-                    "Group name": campaign,
-                    "Campaign ID": fnv_hash(campaign.encode()),
-                    "Version": version,
-                    "RC4 key": rc4_key,
-                    "Strings": str_vals,
+                    "CNCs": c2,
+                    "campaign": fnv_hash(campaign.encode()),
+                    "version": version,
+                    "cryptokey": rc4_key,
+                    "cryptokey_type": "RC4",
+                    "raw": {
+                        "Strings": str_vals,
+                        "Group name": campaign,
+                    },
                 }
             except Exception as e:
                 log.error("Error: %s", e)

@@ -12,10 +12,11 @@ from typing import Dict, Tuple
 PARSERS_ROOT = Path(__file__).absolute().parent
 log = logging.getLogger()
 
-def load_cape_parsers(load: str="all", exclude_parsers: list = []):
+
+def load_cape_parsers(load: str = "all", exclude_parsers: list = []):
     """
-        load: all, core, community
-        exclude_parsers: [names of parsers that will be ignored]
+    load: all, core, community
+    exclude_parsers: [names of parsers that will be ignored]
     """
     versions = {
         "cape": "core",
@@ -25,7 +26,9 @@ def load_cape_parsers(load: str="all", exclude_parsers: list = []):
     cape_parsers = {}
     CAPE_DECODERS = {
         "cape": [os.path.basename(decoder)[:-3] for decoder in glob.glob(os.path.join(PARSERS_ROOT, "CAPE", "core", "[!_]*.py"))],
-        "community": [os.path.basename(decoder)[:-3] for decoder in glob.glob(os.path.join(PARSERS_ROOT, "CAPE", "community", "[!_]*.py"))],
+        "community": [
+            os.path.basename(decoder)[:-3] for decoder in glob.glob(os.path.join(PARSERS_ROOT, "CAPE", "community", "[!_]*.py"))
+        ],
     }
 
     for version, names in CAPE_DECODERS.items():
@@ -54,6 +57,7 @@ def load_mwcp_parsers() -> Tuple[Dict[str, str], ModuleType]:
     with suppress(ImportError):
         # We do not install this by default
         import mwcp
+
         HAVE_MWCP = True
 
     if not HAVE_MWCP:
@@ -65,6 +69,7 @@ def load_mwcp_parsers() -> Tuple[Dict[str, str], ModuleType]:
     if "MWCP_TEST" not in _malware_parsers:
         return {}, mwcp
     return _malware_parsers, mwcp
+
 
 def _malduck_load_decoders():
 
@@ -79,6 +84,7 @@ def _malduck_load_decoders():
             print(f"malduck parser: No module named {name} - {e}")
 
     return malduck_modules
+
 
 """
 def load_malduck_parsers():
@@ -108,6 +114,7 @@ def load_malduck_parsers():
     return malduck_modules
 """
 
+
 def load_malwareconfig_parsers() -> Tuple[bool, dict, ModuleType]:
     try:
         from malwareconfig import fileparser
@@ -125,12 +132,14 @@ def load_malwareconfig_parsers() -> Tuple[bool, dict, ModuleType]:
         log.error(e, exc_info=True)
     return False, False, False
 
+
 def load_ratdecoders_parsers():
     dec_modules = {}
     HAVE_MLW_CONFIGS = False
     with suppress(ImportError):
         # We do not install this by default as is outdated now, but if installed will be imported
         from malwareconfig.common import Decoder
+
         HAVE_MLW_CONFIGS = True
 
     if not HAVE_MLW_CONFIGS:
