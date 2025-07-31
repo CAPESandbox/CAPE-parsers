@@ -59,7 +59,7 @@ def extract_config(data):
             if line.startswith("/") and line[-4] == ".":
                 uri = line
         if domain and uri:
-            config_dict.setdefault("C2", []).append(f"{domain}{uri}")
+            config_dict.setdefault("CNCs", []).append(f"{domain}{uri}")
             return config_dict
     except Exception:
         pass
@@ -113,10 +113,10 @@ def extract_config(data):
             continue
 
     if domain and uri:
-        config_dict.setdefault("C2", []).append(f"{domain}{uri}")
+        config_dict.setdefault("CNCs", []).append(f"{domain}{uri}")
 
     if botnet_id:
-        config_dict.setdefault("Botnet ID", botnet_id)
+        config_dict.setdefault("botnet", botnet_id)
 
     return config_dict
 
