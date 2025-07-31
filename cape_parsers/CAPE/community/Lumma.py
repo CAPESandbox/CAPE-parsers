@@ -318,7 +318,7 @@ def extract_config(data):
                 decoded_c2 = chacha20_xor(encrypted_string, key, nonce, counter).split(b"\x00", 1)[0]
                 if contains_non_printable(decoded_c2):
                     break
-                config_dict.setdefault("C2", {}).append(decoded_c2.decode())
+                config_dict.setdefault("C2", []).append(decoded_c2.decode())
                 encrypted_strings_offset = encrypted_strings_offset + step_size
                 counter += 2
 
