@@ -78,7 +78,13 @@ def extract_config(data):
 
         if all(sections in section_names for sections in required_sections):
             # print("all required section names found")
-            config_section_name = [resource for resource in section_names if resource not in required_sections][0]
+            section_names_set = set(section_names)
+            required_sections_set = set(required_sections)
+            config_section_names = section_names_set - required_sections_set
+            if len(config_section_names) == 1:
+                config_section_name = config_section_names.pop()
+            else:
+                return None # Or raise an exception, depending on desired behavior
             config_key, config_data = getREvilKeyAndConfig(pe.sections, config_section_name)
             if config_key and config_data:
                 return decodeREvilConfig(config_key, config_data)
