@@ -156,7 +156,7 @@ def extract_config(data):
     config_dict = {}
     magic = struct.unpack("I", data[:4])[0]
     if magic == 0x59485221:
-        config_dict["CNCs"] = data[24:].split(b"\0", 1)[0].decode()
+        config_dict["CNCs"] = [data[24:].split(b"\0", 1)[0].decode()]
         return config_dict
     else:
         key = b"\x52\xAB\xDF\x06\xB6\xB1\x3A\xC0\xDA\x2D\x22\xDC\x6C\xD2\xBE\x6C\x20\x17\x69\xE0\x12\xB5\xE6\xEC\x0E\xAB\x4C\x14\x73\x4A\xED\x51"

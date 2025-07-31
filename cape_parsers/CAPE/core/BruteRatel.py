@@ -11,12 +11,13 @@ def extract_config(data):
             if line.startswith("Mozilla"):
                 cncs = list(set(lines[i - 2].split(",")))
                 port = lines[i - 1]
-                uri = lines[i + 3].split(",")
+                uris = lines[i + 3].split(",")
                 keys = [lines[i + 1], lines[i + 2]]
 
                 for cnc in cncs:
                     # ToDo need to verify if we have schema and uri has slash
-                    config.setdefault("CNCs", []).append(f"{cnc}:{port}{uri}")
+                    for uri in uris:
+                        config.setdefault("CNCs", []).append(f"{cnc}:{port}{uri}")
 
                 config["raw"] = {
                     "User Agent": line,

@@ -93,7 +93,7 @@ def extract_config(data):
         offset += c2_size
         c2_port = struct.unpack("H", dtxt[offset : offset + 2])[0]
         # ToDo missed schema
-        cfg["CNCs"] = f"{c2_host}:{c2_port}"
+        cfg["CNCs"] = [f"{c2_host}:{c2_port}"]
         offset += 2
         # unk1 = dtxt[offset : offset + 7]
         offset += 7

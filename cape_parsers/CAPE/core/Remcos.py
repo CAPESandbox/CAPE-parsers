@@ -197,7 +197,7 @@ def extract_config(filebuf):
                     # various separators have been observed
                     separator = next((x for x in (b"|", b"\x1e", b"\xff\xff\xff\xff") if x in cont))
                     host, port, password = cont.split(separator, 1)[0].split(b":")
-                    p_data["Control"] = f"tcp://{host.decode()}:{port.decode()}"
+                    config["CNCs"] = [f"tcp://{host.decode()}:{port.decode()}"]
                     p_data["Password"] = password.decode()
                 else:
                     p_data[idx_list[i]] = cont

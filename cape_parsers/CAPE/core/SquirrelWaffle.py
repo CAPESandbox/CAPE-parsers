@@ -85,5 +85,4 @@ def extract_config(data):
                     key_rva = struct.unpack("i", data[c2key_offset + 28 : c2key_offset + 32])[0] - pe.OPTIONAL_HEADER.ImageBase
                     key_offset = pe.get_offset_from_rva(key_rva)
                     config["cryptokey"] = string_from_offset(data, key_offset).decode()
-                    # ToDo key type
                     return config

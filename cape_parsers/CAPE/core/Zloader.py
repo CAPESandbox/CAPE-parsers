@@ -103,6 +103,7 @@ def parse_config(data):
 
 
 def extract_config(filebuf):
+    config = {}
     end_config = {}
     pe = pefile.PE(data=filebuf, fast_load=False)
     image_base = pe.OPTIONAL_HEADER.ImageBase
@@ -167,8 +168,8 @@ def extract_config(filebuf):
         enc_data = filebuf[data_offset:].split(b"\0\0", 1)[0]
         raw = decrypt_rc4(key, enc_data)
         items = list(filter(None, raw.split(b"\x00\x00")))
-        end_config["Botnet name"] = items[1].lstrip(b"\x00")
-        end_config["Campaign ID"] = items[2]
+        config["botnet"] = items[1].lstrip(b"\x00")
+        config["campaign"] = items[2]
         for item in items:
             item = item.lstrip(b"\x00")
             if item.startswith(b"http"):
@@ -186,8 +187,8 @@ def extract_config(filebuf):
         conf_data = filebuf[conf_offset : conf_offset + conf_size]
         raw = decrypt_rc4(key, conf_data)
         items = list(filter(None, raw.split(b"\x00\x00")))
-        end_config["botnet"] = items[0].decode("utf-8")
-        end_config["campaign"] = items[1].decode("utf-8")
+        config["botnet"] = items[0].decode("utf-8")
+        config["campaign"] = items[1].decode("utf-8")
         for item in items:
             item = item.lstrip(b"\x00")
             if item.startswith(b"http"):
@@ -208,7 +209,7 @@ def extract_config(filebuf):
         conf = decrypt_rc4(decrypt_key, conf_data)
         end_config = parse_config(conf)
 
-    return {"raw": end_config}
+    return {"raw": end_config}.update(config)
 
 
 if __name__ == "__main__":
