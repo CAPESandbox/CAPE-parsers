@@ -106,20 +106,25 @@ def handle_encrypted(dotnet_file, data, c2_type, user_strings):
     if decrypted_strings:
         if c2_type == "Telegram":
             token, chat_id = decrypted_strings
-            config_dict = {"Type": "Telegram", "C2": f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}"}
+            config_dict = {"raw": {"Type": "Telegram"}, "CNCs": f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}"}
         elif c2_type == "SMTP":
             smtp_from, smtp_password, smtp_host, smtp_to, smtp_port = decrypted_strings
             config_dict = {
-                "Type": "SMTP",
-                "Host": smtp_host,
-                "Port": smtp_port,
-                "From Address": smtp_from,
-                "To Address": smtp_to,
-                "Password": smtp_password,
+                "raw": {
+                    "Type": "SMTP",
+                    "Host": smtp_host,
+                    "Port": smtp_port,
+                    "From Address": smtp_from,
+                    "To Address": smtp_to,
+                    "Password": smtp_password,
+                }
             }
         elif c2_type == "FTP":
             ftp_username, ftp_password, ftp_host = decrypted_strings
-            config_dict = {"Type": "FTP", "Host": ftp_host, "Username": ftp_username, "Password": ftp_password}
+            config_dict = {
+                "raw": {"Type": "FTP", "Host": ftp_host, "Username": ftp_username, "Password": ftp_password},
+                "CNCs": [f"ftp://{ftp_username}:{ftp_password}@{ftp_host}"]
+            }
     return config_dict
 
 

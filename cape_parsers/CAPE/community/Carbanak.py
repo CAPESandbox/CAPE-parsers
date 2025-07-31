@@ -159,7 +159,7 @@ def extract_config(filebuf):
                 if dec:
                     ver = re.findall(r"^(\d+\.\d+)$", dec)
                     if ver:
-                        cfg["Version"] = ver[0]
+                        cfg["version"] = ver[0]
 
     data = data_sections[0].get_data()
     items = data.split(b"\x00")
