@@ -103,4 +103,5 @@ def extract_config(data):
     elif "!!ElMattadorDz!!" in data:
         config = ver_5(data)
 
-    return {"raw": config}
+    if config:
+        return {"raw": config}

@@ -322,4 +322,6 @@ def extract_config(cfg_blob):
                 reg_list.append(reg_name)
         if reg_list:
             config_output.update({"Registry black list": reg_list})
-    return {"raw": config_output}
+
+    if config_output:
+        return {"raw": config_output}

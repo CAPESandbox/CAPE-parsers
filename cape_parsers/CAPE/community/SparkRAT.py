@@ -59,7 +59,9 @@ def extract_config(data):
             key = f.read(16)
             iv = f.read(16)
             enc_data = f.read(data_len - 32)
-        return {"raw": decrypt_config(enc_data, key, iv)}T
+            config = decrypt_config(enc_data, key, iv)
+            if config:
+                return {"raw": config}
     except Exception as e:
         log.error("Configuration decryption failed: %s", e)
         return {}

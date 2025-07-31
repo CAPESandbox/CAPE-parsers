@@ -32,4 +32,5 @@ def extract_config(data):
         config_dict["Install Path"] = "TEMP"
     if config_parts[19] == "True":
         config_dict["Install Path"] = "Documents"
-    return {"raw": config_dict}
+    if config_dict:
+        return {"raw": config_dict}
