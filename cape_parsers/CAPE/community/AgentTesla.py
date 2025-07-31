@@ -7,6 +7,7 @@ except ImportError as e:
 
 
 def extract_config(data):
+    config = {}
     config_dict = {}
     with suppress(Exception):
         if data[:2] == b"MZ":
@@ -22,32 +23,35 @@ def extract_config(data):
             # Data Exfiltration via Telegram
             if "api.telegram.org" in lines[base + x]:
                 config_dict["Protocol"] = "Telegram"
-                config_dict["C2"] = lines[base + x]
+                config["CNCs"] = lines[base + x]
                 config_dict["Password"] = lines[base + x + 1]
                 break
             # Data Exfiltration via Discord
             elif "discord" in lines[base + x]:
                 config_dict["Protocol"] = "Discord"
-                config_dict["C2"] = lines[base + x]
+                config["CNCs"] = lines[base + x]
                 break
             # Data Exfiltration via FTP
             elif "ftp:" in lines[base + x]:
                 config_dict["Protocol"] = "FTP"
-                config_dict["C2"] = lines[base + x]
-                config_dict["Username"] = lines[base + x + 1]
-                config_dict["Password"] = lines[base + x + 2]
+                hostname = lines[base + x]
+                username = lines[base + x + 1]
+                password = lines[base + x + 2]
+                config = [f"ftp://{username}:{password}@{hostname}"]
                 break
             # Data Exfiltration via SMTP
             elif "@" in lines[base + x]:
                 config_dict["Protocol"] = "SMTP"
+                port = ""
                 if lines[base + x - 2].isdigit() and len(lines[base + x - 2]) <= 5:  # check if length <= highest Port 65535
                     # minchars 3 so Ports < 100 do not appear in strings / TBD: michars < 3
-                    config_dict["Port"] = lines[base + x - 2]
+                    port = lines[base + x - 2]
                 elif lines[base + x - 2] in {"true", "false"} and lines[base + x - 3].isdigit() and len(lines[base + x - 3]) <= 5:
-                    config_dict["Port"] = lines[base + x - 3]
-                config_dict["C2"] = lines[base + +x - 1]
-                config_dict["Username"] = lines[base + x]
-                config_dict["Password"] = lines[base + x + 1]
+                    port = lines[base + x - 3]
+                hostname = lines[base + +x - 1]
+                username = lines[base + x]
+                password = lines[base + x + 1]
+                config["CNCs"] = [f"smtp://{username}:{password}@{hostname}:{port}"]
                 if "@" in lines[base + x + 2]:
                     config_dict["EmailTo"] = lines[base + x + 2]
                 break
@@ -72,6 +76,6 @@ def extract_config(data):
                     for x in range(1, 8):
                         if any(s in lines[base + index + x] for s in temp_match):
                             config_dict["Protocol"] = "HTTP(S)"
-                            config_dict["C2"] = lines[base + index + x]
+                            config["CNCs"] = lines[base + index + x]
                             break
-        return config_dict
+        return config.setdefault({"raw": config})

@@ -89,7 +89,7 @@ def xor_data(data, key):
 
 
 def extract_config(data):
-    config_dict = {"C2": []}
+    config = {}
 
     xor_key = b""
     encoded_payload = b""
@@ -119,9 +119,9 @@ def extract_config(data):
         encoded_payload = remove_nulls(encoded_payload, encoded_payload_size)
         decoded_payload = xor_data(encoded_payload, xor_key)
 
-        config_dict["C2"] = find_c2(decoded_payload)
+        config["CNCs"] = find_c2(decoded_payload)
 
-    return config_dict
+    return config
 
 
 if __name__ == "__main__":

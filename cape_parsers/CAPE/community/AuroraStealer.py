@@ -32,7 +32,7 @@ def extract_config(data):
             key = item.split(":")[0].strip("{").strip('"')
             value = item.split(":")[1].strip('"')
             if key == "IP":
-                key = "C2"
+                key = "CNCs"
             if value:
                 config_dict[key] = value
 
@@ -47,13 +47,13 @@ def extract_config(data):
             data_dict = json.loads(decoded_str)
             for elem in data_dict:
                 if elem["Method"] == "DW":
-                    config_dict["Loader module"] = elem
+                    config_dict.setdefault("raw", {})["Loader module"] = elem
 
         if b"PS" in decoded_str:
             data_dict = json.loads(decoded_str)
             for elem in data_dict:
                 if elem["Method"] == "PS":
-                    config_dict["PowerShell module"] = elem
+                    config_dict.setdefault("raw", {})["PowerShell module"] = elem
 
         if b"Path" in decoded_str:
             grabber_found = True
@@ -68,6 +68,6 @@ def extract_config(data):
 
                 if not grabber_found:
                     grabber_found = True
-                    config_dict["Grabber"] = cleanup_str
+                    config_dict.setdefault("raw", {})["Grabber"] = cleanup_str
 
     return config_dict

@@ -210,7 +210,7 @@ def extract_config(filebuf):
             except Exception as e:
                 log.error("Error: %s", e)
 
-        if not cfg.get("C2", False) and not cfg.get("Group name", False):
+        if not cfg.get("C2", False) and not cfg.get("raw", {}).get("Group name", False):
             cfg = None
     return cfg
 

@@ -174,9 +174,9 @@ def extract_config(filebuf):
                     pass
                 elif DataType.DATETIME == param["type"]:
                     dt = param["value"]
-                    config_dict[item_name] = dt.strftime("%Y-%m-%d %H:%M:%S.%f")
+                    config_dict.setdefault("raw", {})[item_name] = dt.strftime("%Y-%m-%d %H:%M:%S.%f")
                 else:
-                    config_dict[item_name] = str(param["value"])
+                    config_dict.setdefault("raw", {})[item_name] = str(param["value"])
     except Exception as e:
         log.error("nanocore error: %s", e)
 
@@ -188,7 +188,7 @@ def extract_config(filebuf):
         cncs.append(config_dict["BackupConnectionHost"])
     if config_dict.get("ConnectionPort") and cncs:
         port = config_dict["ConnectionPort"]
-        config_dict["cncs"] = [f"{cnc}:{port}" for cnc in cncs]
+        config_dict["CNCs"] = [f"{cnc}:{port}" for cnc in cncs]
     return config_dict
 
 

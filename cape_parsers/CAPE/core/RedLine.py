@@ -167,7 +167,7 @@ def extract_config(data):
     if not c2 or "." not in c2:
         return
 
-    config_dict = {"CNCS": c2, "botnet": botnet, "cryptokey": key}
+    config_dict = {"CNCs": c2, "botnet": botnet, "cryptokey": key}
     if "Authorization" in user_strings:
         base_location = user_strings.index("Authorization")
         if base_location:

@@ -1,7 +1,7 @@
 import struct
 import pefile
 import yara
-
+from contextlib import suppress
 
 # Hash = 69ba4e2995d6b11bb319d7373d150560ea295c02773fe5aa9c729bfd2c334e1e
 
@@ -46,10 +46,10 @@ def xor_data(data, key):
 
 
 def extract_config(data):
-    config_dict = {}
+    config = {}
 
     # Attempt to extract via old method
-    try:
+    with suppress(Exception):
         domain = ""
         uri = ""
         lines = data.decode().split("\n")
@@ -59,10 +59,8 @@ def extract_config(data):
             if line.startswith("/") and line[-4] == ".":
                 uri = line
         if domain and uri:
-            config_dict.setdefault("C2", []).append(f"{domain}{uri}")
-            return config_dict
-    except Exception:
-        pass
+            config.setdefault("CNCs", []).append(f"{domain}{uri}")
+            return config
 
     # Try with new method
 
@@ -114,12 +112,12 @@ def extract_config(data):
             continue
 
     if domain and uri:
-        config_dict.setdefault("C2", []).append(f"{domain}{uri}")
+        config.setdefault("CNCs", []).append(f"{domain}{uri}")
 
     if botnet_id:
-        config_dict.setdefault("Botnet ID", botnet_id)
+        config.setdefault("botnet", botnet_id)
 
-    return config_dict
+    return config
 
 
 if __name__ == "__main__":

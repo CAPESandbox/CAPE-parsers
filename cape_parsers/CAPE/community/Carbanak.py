@@ -105,6 +105,7 @@ def scramble(sbox, start, end, count):
 def extract_config(filebuf):
     global const_a, const_b, const_c
     cfg = {}
+    config = {}
     constants_offset = None
     pe = pefile.PE(data=filebuf, fast_load=True)
     matches = yara_rules.match(data=filebuf)
@@ -169,13 +170,13 @@ def extract_config(filebuf):
         c2_dec = decode_string(items[10], sbox).decode("utf8")
         if "|" in c2_dec:
             c2_dec = c2_dec.split("|")
-        cfg["C2"] = c2_dec
-        if float(cfg["Version"]) < 1.7:
-            cfg["Campaign Id"] = decode_string(items[276], sbox).decode("utf8")
+        config["CNCs"] = c2_dec
+        if float(cfg["version"]) < 1.7:
+            config["campaign"] = decode_string(items[276], sbox).decode("utf8")
         else:
-            cfg["Campaign Id"] = decode_string(items[25], sbox).decode("utf8")
+            config["campaign"] = decode_string(items[25], sbox).decode("utf8")
 
-    return cfg
+    return config.update({"raw": cfg})
 
 
 if __name__ == "__main__":

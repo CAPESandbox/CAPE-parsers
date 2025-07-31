@@ -38,7 +38,7 @@ def handle_plain(dotnet_file, c2_type, user_strings):
     if c2_type == "Telegram":
         token = dotnet_file.net.user_strings.get(user_strings_list[15]).value.__str__()
         chat_id = dotnet_file.net.user_strings.get(user_strings_list[16]).value.__str__()
-        return {"Type": "Telegram", "C2": f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}"}
+        return {"raw": {"Type": "Telegram"}, "CNCs": f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}"}
     elif c2_type == "SMTP":
         smtp_from = dotnet_file.net.user_strings.get(user_strings_list[7]).value.__str__()
         smtp_password = dotnet_file.net.user_strings.get(user_strings_list[8]).value.__str__()
@@ -46,18 +46,26 @@ def handle_plain(dotnet_file, c2_type, user_strings):
         smtp_to = dotnet_file.net.user_strings.get(user_strings_list[10]).value.__str__()
         smtp_port = dotnet_file.net.user_strings.get(user_strings_list[11]).value.__str__()
         return {
-            "Type": "SMTP",
-            "Host": smtp_host,
-            "Port": smtp_port,
-            "From Address": smtp_from,
-            "To Address": smtp_to,
-            "Password": smtp_password,
+            "raw": {
+                "Type": "SMTP",
+                "Host": smtp_host,
+                "Port": smtp_port,
+                "From Address": smtp_from,
+                "To Address": smtp_to,
+                "Password": smtp_password,
+            },
+            "CNCs": [f"smtp://{smtp_host}:{smtp_port}"]
         }
     elif c2_type == "FTP":
         ftp_username = dotnet_file.net.user_strings.get(user_strings_list[12]).value.__str__()
         ftp_password = dotnet_file.net.user_strings.get(user_strings_list[13]).value.__str__()
         ftp_host = dotnet_file.net.user_strings.get(user_strings_list[14]).value.__str__()
-        return {"Type": "FTP", "Host": ftp_host, "Username": ftp_username, "Password": ftp_password}
+        return {
+            "raw": {
+                "Type": "FTP", "Host": ftp_host, "Username": ftp_username, "Password": ftp_password},
+            "CNCs": [f"ftp://{ftp_username}:{ftp_password}@{ftp_host}"]
+        }
+
 
 
 def handle_encrypted(dotnet_file, data, c2_type, user_strings):

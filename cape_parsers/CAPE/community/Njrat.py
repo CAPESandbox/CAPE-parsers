@@ -179,7 +179,7 @@ def extract_config(data):
             conf["cncs"] = [f"{config['domain']}:{config['port']}"]
 
         if config.get("campaign_id"):
-            conf["campaign id"] = config["campaign_id"]
+            conf["campaign"] = config["campaign_id"]
 
         if config.get("version"):
             conf["version"] = config["version"]
