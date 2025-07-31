@@ -76,8 +76,8 @@ def string_from_offset(data, offset):
 
 def parse_config(data):
     parsed = {}
-    parsed["Botnet Id"] = data[4:].split(b"\x00", 1)[0].decode("utf-8")
-    parsed["Campaign Id"] = data[25:].split(b"\x00", 1)[0].decode("utf-8")
+    parsed["botnet"] = data[4:].split(b"\x00", 1)[0].decode("utf-8")
+    parsed["campaign"] = data[25:].split(b"\x00", 1)[0].decode("utf-8")
     c2s = []
     c2_data = data[46:686]
     for i in range(10):
@@ -85,7 +85,7 @@ def parse_config(data):
         chunk = chunk.rstrip(b"\x00")
         if chunk:
             c2s.append(chunk.decode("utf-8"))
-    parsed["C2s"] = c2s
+    parsed["CNCs"] = c2s
     parsed["Public Key"] = data[704:].split(b"\x00", 1)[0]
     dns_data = data[1004:].split(b"\x00", 1)[0]
     parsed["TLS SNI"] = dns_data.split(b"~")[0].decode("utf-8").rstrip()
@@ -99,7 +99,7 @@ def parse_config(data):
         if chunk:
             dns_ips.append(socket.inet_ntoa(chunk))
     parsed["DNS Servers"] = dns_ips
-    return {"raw": parsed}
+    return parsed
 
 
 def extract_config(filebuf):
@@ -209,9 +209,10 @@ def extract_config(filebuf):
         conf = decrypt_rc4(decrypt_key, conf_data)
         end_config = parse_config(conf)
 
-    if config:
-        return config.update({"raw": end_config})
+    if config and end_config:
+        config = config.update({"raw": end_config})
 
+    return config
 
 if __name__ == "__main__":
     import sys
