@@ -287,6 +287,7 @@ def get_build_id_new(data):
 
 
 def extract_config(data):
+    config = {}
     config_dict = {}
 
     # try to load as a PE
@@ -318,18 +319,18 @@ def extract_config(data):
                 decoded_c2 = chacha20_xor(encrypted_string, key, nonce, counter).split(b"\x00", 1)[0]
                 if contains_non_printable(decoded_c2):
                     break
-                config_dict.setdefault("C2", []).append(decoded_c2.decode())
+                config.setdefault("CNCs", []).append(decoded_c2.decode())
                 encrypted_strings_offset = encrypted_strings_offset + step_size
                 counter += 2
 
-        if config_dict.get("C2"):
+        if config_dict.get("CNCs"):
             # If found C2 servers try to find build ID
             build_id = get_build_id_new(data)
             if build_id:
                 config_dict["Build ID"] = build_id
 
     # If no C2s try with the version after Jan 21, 2025
-    if "C2" not in config_dict:
+    if "CNCs" not in config:
         offset = yara_scan(data, RULE_SOURCE_LUMMA)
         if offset:
             key = data[offset + 16 : offset + 48]
@@ -351,20 +352,20 @@ def extract_config(data):
                         decrypted = chacha20_xor(c2_encrypted, key, nonce, counter)
                         c2 = extract_c2_domain(decrypted)
                         if c2 is not None and len(c2) > 10:
-                            config_dict["C2"].append(c2.decode())
+                            config["CNCs"].append(c2.decode())
                             break
 
                 except Exception:
                     continue
 
-        if "C2" in config_dict and config_dict["C2"] and pe is not None:
+        if "CNCs" in config_dict and config_dict["CNCs"] and pe is not None:
             # If found C2 servers try to find build ID
             build_id = get_build_id(pe, data)
             if build_id:
                 config_dict["Build ID"] = build_id
 
     # If no C2s try with version prior to Jan 21, 2025
-    if "C2" not in config_dict:
+    if "CNCs" not in config_dict:
         try:
             if pe is not None:
                 rdata = get_rdata(pe, data)
@@ -384,20 +385,20 @@ def extract_config(data):
                     decoded_c2 = xor_data(encoded_c2, xor_key)
 
                     if not contains_non_printable(decoded_c2):
-                        config_dict.setdefault("C2", []).append(decoded_c2.decode())
+                        config_dict.setdefault("CNCs", []).append(decoded_c2.decode())
                 except Exception:
                     continue
 
         except Exception:
             return
 
-        if "C2" in config_dict and pe is not None:
+        if "CNCs" in config_dict and pe is not None:
             # If found C2 servers try to find build ID
             build_id = get_build_id(pe, data)
             if build_id:
                 config_dict["Build ID"] = build_id
 
-    return config_dict
+    return config.update({"raw": config_dict})
 
 
 if __name__ == "__main__":
