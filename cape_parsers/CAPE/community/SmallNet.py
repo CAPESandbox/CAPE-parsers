@@ -96,8 +96,11 @@ def ver_5(data):
 
 
 def extract_config(data):
+    config = {}
     if "!!<3SAFIA<3!!" in data:
-        return ver_52(data)
+        config = ver_52(data)
 
     elif "!!ElMattadorDz!!" in data:
-        return ver_5(data)
+        config = ver_5(data)
+
+    return {"raw": config}

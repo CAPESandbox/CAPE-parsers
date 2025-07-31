@@ -7,9 +7,7 @@ DESCRIPTION = "Retefe configuration parser."
 AUTHOR = "Tomasuh"
 
 import struct
-
 import pefile
-
 import yara
 
 rule_source = """

@@ -87,4 +87,6 @@ def parse_config(raw_config):
 def extract_config(data):
     raw_config = get_config(data)
     if raw_config:
-        return parse_config(raw_config)
+        config =  parse_config(raw_config)
+        if config:
+            return {"raw": config}

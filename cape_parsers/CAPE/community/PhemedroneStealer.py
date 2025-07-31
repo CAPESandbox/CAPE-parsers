@@ -188,4 +188,6 @@ def extract_config(data):
                             value_data = inst_.split(".")[-1].strip()
                             config_field_name, str_list = check_next_inst(pe, body, DnfileParse, index)
                             config_dict[config_field_name] = value_data
+    if config_dict:
+        config_dict = {"raw": config_dict}
     return config_dict

@@ -9,8 +9,5 @@ def extract_config(data: bytes):
     if matches:
         ip = "".join(".".join(f"{c}" for c in matches[0][0]))
         port = int.from_bytes(matches[0][1], byteorder="big")
-
-        config_dict["C2"] = ip
-        config_dict["Port"] = port
-
-    return config_dict
+        config_dict["CNCs"] = f"{ip}:{port}"
+    return {}

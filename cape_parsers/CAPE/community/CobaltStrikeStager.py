@@ -187,4 +187,7 @@ class StagerConfig:
 
 def extract_config(data):
     """Config extraction function for CapeV2"""
-    return StagerConfig(data).get_config()
+    config = StagerConfig(data).get_config()
+    if config:
+        return {"raw": config}
+    return {}

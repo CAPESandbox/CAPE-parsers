@@ -158,7 +158,7 @@ def decoder(data):
 def extract_config(filebuf):
 
     urls = decoder(filebuf)
-    return {"address": [url.decode() for url in urls]}
+    return {"CNCs": [url.decode() for url in urls]}
 
 
 if __name__ == "__main__":

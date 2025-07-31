@@ -209,7 +209,7 @@ def extract_config(filebuf):
         conf = decrypt_rc4(decrypt_key, conf_data)
         end_config = parse_config(conf)
 
-    return {"raw": end_config}.update(config)
+    return config.update({"raw": end_config})
 
 
 if __name__ == "__main__":

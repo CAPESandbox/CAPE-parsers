@@ -74,4 +74,6 @@ def extract_config(data):
             clean_config = version_21(raw_config)
         elif len(raw_config) == 20:
             clean_config = version_22(raw_config)
+        if clean_config:
+            clean_config = {"raw": clean_config}
         return clean_config
