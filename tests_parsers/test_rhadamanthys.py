@@ -9,8 +9,8 @@ def test_rhadamanthys():
     with open("tests/data/malware/b70519d6094fa55da2b86d897be0040ee84d0b3ef61ab4fd8d08a20628a67497", "rb") as data:
         conf = extract_config(data.read())
         assert conf == {
-            "Reexecution_delay": 0,
-            "C2": [
+            "raw": {"Reexecution_delay": 0},
+            "CNCs": [
                 "https://51.75.171.9:5151/9640d96bbead45f349f3ab9/Xteam30.api"
             ]
         }

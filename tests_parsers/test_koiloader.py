@@ -7,4 +7,4 @@ from cape_parsers.CAPE.community.KoiLoader import extract_config
 def test_koiloader():
     with open("tests/data/malware/b462e3235c7578450b2b56a8aff875a3d99d22f6970a01db3ba98f7ecb6b01a0", "rb") as data:
         conf = extract_config(data.read())
-        assert conf == {"C2": ["http://91.202.233.209/hypermetropia.php", "https://admiralpub.ca/wp-content/uploads/2017"]}
+        assert conf == {"CNCs": ["http://91.202.233.209/hypermetropia.php", "https://admiralpub.ca/wp-content/uploads/2017"]}

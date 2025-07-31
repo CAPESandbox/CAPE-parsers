@@ -9,7 +9,7 @@ def test_lumma():
     with open("tests/data/malware/ede02b81615e9011835b26039b5963db0eb9c4569e5535da58c6aefa7c1b7217", "rb") as data:
         conf = extract_config(data.read())
         assert conf == {
-            "C2": [
+            "CNCs": [
                 "roriwfq.xyz/auyw",
                 "narrathfpt.top/tekq",
                 "escczlv.top/bufi",
