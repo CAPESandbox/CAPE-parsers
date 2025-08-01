@@ -87,7 +87,7 @@ def parse_config(data):
             c2s.append(chunk.decode("utf-8"))
     parsed["CNCs"] = c2s
     parsed["cryptokey"] = data[704:].split(b"\x00", 1)[0]
-    parsed["cryptokey_type"] = "RSA Public Key""
+    parsed["cryptokey_type"] = "RSA Public Key"
     dns_data = data[1004:].split(b"\x00", 1)[0]
     parsed["TLS SNI"] = dns_data.split(b"~")[0].decode("utf-8").rstrip()
     parsed["DNS C2"] = dns_data.split(b"~")[1].decode("utf-8").strip()
