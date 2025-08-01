@@ -105,7 +105,6 @@ def scramble(sbox, start, end, count):
 def extract_config(filebuf):
     global const_a, const_b, const_c
     cfg = {}
-    config = {}
     constants_offset = None
     pe = pefile.PE(data=filebuf, fast_load=True)
     matches = yara_rules.match(data=filebuf)
@@ -165,18 +164,18 @@ def extract_config(filebuf):
     items = data.split(b"\x00")
 
     with suppress(IndexError, UnicodeDecodeError, ValueError):
-        cfg["Unknown 1"] = decode_string(items[0], sbox).decode("utf8")
-        cfg["Unknown 2"] = decode_string(items[8], sbox).decode("utf8")
+        cfg.setdefault("raw", {})["Unknown 1"] = decode_string(items[0], sbox).decode("utf8")
+        cfg.setdefault("raw", {})["Unknown 2"] = decode_string(items[8], sbox).decode("utf8")
         c2_dec = decode_string(items[10], sbox).decode("utf8")
         if "|" in c2_dec:
             c2_dec = c2_dec.split("|")
-        config["CNCs"] = c2_dec
+        cfg["CNCs"] = c2_dec
         if float(cfg["version"]) < 1.7:
-            config["campaign"] = decode_string(items[276], sbox).decode("utf8")
+            cfg["campaign"] = decode_string(items[276], sbox).decode("utf8")
         else:
-            config["campaign"] = decode_string(items[25], sbox).decode("utf8")
+            cfg["campaign"] = decode_string(items[25], sbox).decode("utf8")
 
-    return config.update({"raw": cfg})
+    return cfg
 
 
 if __name__ == "__main__":
