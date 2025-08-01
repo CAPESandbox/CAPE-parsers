@@ -123,8 +123,8 @@ def extract_config(filebuf):
 
                 config = {
                     "CNCs": c2,
+                    'version': dll_version,
                     "raw": {
-                        "Dll Version": dll_version,
                         "Strings": str_vals,
                     },
                 }
