@@ -183,11 +183,11 @@ def extract_config(filebuf):
     cncs = []
 
     if config_dict.get("raw", {}).get("PrimaryConnectionHost"):
-        cncs.append(config_dict["PrimaryConnectionHost"])
+        cncs.append(config_dict["raw"]["PrimaryConnectionHost"])
     if config_dict.get("raw", {}).get("PrimaryConnectionHost"):
-        cncs.append(config_dict["BackupConnectionHost"])
+        cncs.append(config_dict["raw"]["BackupConnectionHost"])
     if config_dict.get("raw", {}).get("ConnectionPort") and cncs:
-        port = config_dict["ConnectionPort"]
+        port = config_dict["raw"]["ConnectionPort"]
         config_dict["CNCs"] = [f"{cnc}:{port}" for cnc in cncs]
     return config_dict
 
