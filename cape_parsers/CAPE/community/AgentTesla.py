@@ -6,7 +6,7 @@ except ImportError as e:
     print(f"Problem to import extract_strings: {e}")
 
 
-def extract_config(data):
+def extract_config(data: bytes):
     config = {}
     config_dict = {}
     with suppress(Exception):
@@ -29,7 +29,7 @@ def extract_config(data):
             # Data Exfiltration via Discord
             elif "discord" in lines[base + x]:
                 config_dict["Protocol"] = "Discord"
-                config["CNCs"] = lines[base + x]
+                config["CNCs"] = [lines[base + x]]
                 break
             # Data Exfiltration via FTP
             elif "ftp:" in lines[base + x]:
@@ -37,21 +37,19 @@ def extract_config(data):
                 hostname = lines[base + x]
                 username = lines[base + x + 1]
                 password = lines[base + x + 2]
-                config = [f"ftp://{username}:{password}@{hostname}"]
+                config["CNCs"] = [f"ftp://{username}:{password}@{hostname}"]
                 break
             # Data Exfiltration via SMTP
             elif "@" in lines[base + x]:
                 config_dict["Protocol"] = "SMTP"
-                port = ""
                 if lines[base + x - 2].isdigit() and len(lines[base + x - 2]) <= 5:  # check if length <= highest Port 65535
                     # minchars 3 so Ports < 100 do not appear in strings / TBD: michars < 3
-                    port = lines[base + x - 2]
+                    config_dict["Port"] = lines[base + x - 2]
                 elif lines[base + x - 2] in {"true", "false"} and lines[base + x - 3].isdigit() and len(lines[base + x - 3]) <= 5:
-                    port = lines[base + x - 3]
-                hostname = lines[base + +x - 1]
-                username = lines[base + x]
-                password = lines[base + x + 1]
-                config["CNCs"] = [f"smtp://{username}:{password}@{hostname}:{port}"]
+                    config_dict["Port"] = lines[base + x - 3]
+                config_dict["CNCs"] = [lines[base + +x - 1]]
+                config_dict["Username"] = lines[base + x]
+                config_dict["Password"] = lines[base + x + 1]
                 if "@" in lines[base + x + 2]:
                     config_dict["EmailTo"] = lines[base + x + 2]
                 break
@@ -78,4 +76,11 @@ def extract_config(data):
                             config_dict["Protocol"] = "HTTP(S)"
                             config["CNCs"] = lines[base + index + x]
                             break
-        return config.setdefault({"raw": config})
+    if config or config_dict:
+        return config.setdefault("raw", config_dict)
+
+if __name__ == "__main__":
+    import sys
+
+    with open(sys.argv[1], "rb") as f:
+        print(extract_config(f.read()))
