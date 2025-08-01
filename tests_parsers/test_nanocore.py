@@ -9,6 +9,7 @@ def test_nanocore():
     with open("tests/data/malware/f1bd511b69f95c26f489157272884a12225c1cf7a453207bfc46ce48a91eae96", "rb") as data:
         conf = extract_config(data.read())
         assert conf == {
+            "CNCs": ["6coinc.zapto.org:6696", "127.0.0.1:6696"],
             "raw":{
                 "BuildTime": "2023-11-22 00:25:26.569697",
                 "Version": "1.2.2.0",
@@ -39,7 +40,6 @@ def test_nanocore():
                 "GCThreshold": "10485760",
                 "UseCustomDnsServer": "True",
                 "PrimaryDnsServer": "8.8.8.8",
-                "BackupDnsServer": "8.8.4.4",
-                "cncs": ["6coinc.zapto.org:6696", "127.0.0.1:6696"]
+                "BackupDnsServer": "8.8.4.4"
             }
         }

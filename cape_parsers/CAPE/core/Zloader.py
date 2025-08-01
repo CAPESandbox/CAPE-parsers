@@ -86,7 +86,8 @@ def parse_config(data):
         if chunk:
             c2s.append(chunk.decode("utf-8"))
     parsed["CNCs"] = c2s
-    parsed["Public Key"] = data[704:].split(b"\x00", 1)[0]
+    parsed["cryptokey"] = data[704:].split(b"\x00", 1)[0]
+    parsed["cryptokey_type"] = "RSA Public Key""
     dns_data = data[1004:].split(b"\x00", 1)[0]
     parsed["TLS SNI"] = dns_data.split(b"~")[0].decode("utf-8").rstrip()
     parsed["DNS C2"] = dns_data.split(b"~")[1].decode("utf-8").strip()
@@ -173,9 +174,10 @@ def extract_config(filebuf):
         for item in items:
             item = item.lstrip(b"\x00")
             if item.startswith(b"http"):
-                end_config.setdefault("address", []).append(item)
+                config.setdefault("CNCs", []).append(item)
             elif len(item) == 16:
-                end_config["RC4 key"] = item
+                config["cryptokey"] = item
+                config["cryptokey_type"] = "RC4"
     elif conf_type == "2" and decrypt_key:
         conf_va = struct.unpack("I", filebuf[decrypt_conf + cva : decrypt_conf + cva + 4])[0]
         conf_offset = pe.get_offset_from_rva(conf_va + pe.get_rva_from_offset(decrypt_conf) + cva + 4)
@@ -192,9 +194,10 @@ def extract_config(filebuf):
         for item in items:
             item = item.lstrip(b"\x00")
             if item.startswith(b"http"):
-                end_config.setdefault("address", []).append(item.decode("utf-8"))
+                config.setdefault("CNCs", []).append(item.decode("utf-8"))
             elif b"PUBLIC KEY" in item:
-                end_config["Public key"] = item.decode("utf-8").replace("\n", "")
+                config["cryptokey"] = item.decode("utf-8").replace("\n", "")
+                config["cryptokey_type"] = "RSA Public key"
     elif conf_type == "3" and rc4_chunk1 and rc4_chunk2:
         conf_va = struct.unpack("I", filebuf[decrypt_conf : decrypt_conf + 4])[0]
         conf_offset = pe.get_offset_from_rva(conf_va + pe.get_rva_from_offset(decrypt_conf) + 4)
