@@ -288,7 +288,6 @@ def get_build_id_new(data):
 
 def extract_config(data):
     config = {}
-    config_dict = {}
 
     # try to load as a PE
     pe = None
@@ -323,11 +322,11 @@ def extract_config(data):
                 encrypted_strings_offset = encrypted_strings_offset + step_size
                 counter += 2
 
-        if config_dict.get("CNCs"):
+        if config.get("CNCs"):
             # If found C2 servers try to find build ID
             build_id = get_build_id_new(data)
             if build_id:
-                config_dict["Build ID"] = build_id
+                config["build"] = build_id
 
     # If no C2s try with the version after Jan 21, 2025
     if "CNCs" not in config:
@@ -358,14 +357,14 @@ def extract_config(data):
                 except Exception:
                     continue
 
-        if "CNCs" in config_dict and config_dict["CNCs"] and pe is not None:
+        if "CNCs" in config and config["CNCs"] and pe is not None:
             # If found C2 servers try to find build ID
             build_id = get_build_id(pe, data)
             if build_id:
-                config_dict["Build ID"] = build_id
+                config["build"] = build_id
 
     # If no C2s try with version prior to Jan 21, 2025
-    if "CNCs" not in config_dict:
+    if "CNCs" not in config:
         try:
             if pe is not None:
                 rdata = get_rdata(pe, data)
@@ -385,20 +384,24 @@ def extract_config(data):
                     decoded_c2 = xor_data(encoded_c2, xor_key)
 
                     if not contains_non_printable(decoded_c2):
-                        config_dict.setdefault("CNCs", []).append(decoded_c2.decode())
-                except Exception:
+                        config.setdefault("CNCs", []).append(decoded_c2.decode())
+                except Exception as e:
+                    print(e)
                     continue
 
-        except Exception:
+        except Exception as e:
+            print(e)
             return
 
-        if "CNCs" in config_dict and pe is not None:
+        if "CNCs" in config and pe is not None:
             # If found C2 servers try to find build ID
             build_id = get_build_id(pe, data)
             if build_id:
-                config_dict["Build ID"] = build_id
+                config["build"] = build_id
 
-    return config.update({"raw": config_dict})
+    print(config)
+    if config:
+        return config
 
 
 if __name__ == "__main__":

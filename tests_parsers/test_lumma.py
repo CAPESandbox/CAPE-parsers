@@ -20,7 +20,5 @@ def test_lumma():
                 "citellcagt.top/gjtu",
                 "saokwe.xyz/plxa",
             ],
-            "raw": {
-                "Build ID": "490cef3c0ae4b5f900506d5988954245474b4975ef"
-            }
+            "build": "490cef3c0ae4b5f900506d5988954245474b4975ef"
         }
