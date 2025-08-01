@@ -7,7 +7,8 @@ def test_adaptixbeacon():
         conf = extract_config(data.read())
         assert conf == {
             "raw":{
-                "config_rc4_key": "9030edf2700574ff942f8dadb826fac8",
+                "cryptokey": "9030edf2700574ff942f8dadb826fac8",
+                "cryptokey_type": "RC4",
                 "agent_type": "BE4C0149",
                 "use_ssl": 1,
                 "servers": ["689535ed-3.b-cdn.net"],
