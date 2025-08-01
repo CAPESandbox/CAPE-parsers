@@ -35,8 +35,9 @@ def extract_config(data):
                 config_dict["CNCs"] = [value]
             elif key == "BuildID":
                 config_dict["build"] = value
-            if value:
-                config_dict.setdefault("raw", {})[key] = value
+            else:
+                if value:
+                    config_dict.setdefault("raw", {})[key] = value
 
     grabber_found = False
 
