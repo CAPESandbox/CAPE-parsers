@@ -13,5 +13,5 @@ def test_zloader():
             "campaign": "M1",
             "CNCs": ["https://dem.businessdeep.com"],
             "cryptokey": "-----BEGIN PUBLIC KEY-----MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDKGAOWVkikqE7TyKIMtWI8dFsaleTaJNXMJNIPnRE/fGCzqrV+rtY3+ex4MCHEtq2Vwppthf0Rglv8OiWgKlerIN5P6NEyCfIsFYUMDfldQTF03VES8GBIvHq5SjlIz7lawuwfdjdEkaHfOmmu9srraftkI9gZO8WRQgY1uNdsXwIDAQAB-----END PUBLIC KEY-----",
-            "cryptokey_type": "Public key"
+            "cryptokey_type": "RSA Public key"
         }

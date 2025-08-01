@@ -220,27 +220,28 @@ def extract_config(data):
                 if not key:
                     continue
                 if index == 0:
-                    cfg["Botnet ID"] = key.decode()
+                    cfg["botnet"] = key.decode()
                 elif index == 1:
-                    cfg["Campaign ID"] = key.decode()
+                    cfg["campaign"] = key.decode()
                 elif index == 2:
-                    cfg["Data"] = key.decode("latin-1")
+                    cfg.setdefault("raw", {})["Data"] = key.decode("latin-1")
                 elif index == 3:
-                    cfg["C2s"] = list(key.decode().split(","))
+                    cfg["CNCs"] = list(key.decode().split(","))
         elif len(key_match) == 1:
             key = extract_key_data(data, pe, key_match[0])
             if not key:
                 return cfg
-            cfg["RC4 Key"] = key.decode()
+            cfg["cryptokey"] = key.decode()
+            cfg["cryptokey_type"] = "RC4"
         # Extract config ciphertext
         config_match = regex.search(data)
         campaign_id, botnet_id, c2s = extract_config_data(data, pe, config_match)
         if campaign_id:
-            cfg["Campaign ID"] = ARC4.new(key).decrypt(campaign_id).split(b"\x00")[0].decode()
+            cfg["campaign"] = ARC4.new(key).decrypt(campaign_id).split(b"\x00")[0].decode()
         if botnet_id:
-            cfg["Botnet ID"] = ARC4.new(key).decrypt(botnet_id).split(b"\x00")[0].decode()
+            cfg["botnet"] = ARC4.new(key).decrypt(botnet_id).split(b"\x00")[0].decode()
         if c2s:
-            cfg["C2s"] = list(ARC4.new(key).decrypt(c2s).split(b"\x00")[0].decode().split(","))
+            cfg["CNCs"] = list(ARC4.new(key).decrypt(c2s).split(b"\x00")[0].decode().split(","))
     except Exception as e:
         log.error("This is broken: %s", str(e), exc_info=True)
 
