@@ -1,7 +1,6 @@
 [tool.poetry]
 name = "CAPE-parsers"
-# version = "0.1.46"
-dynamic = ["version"]
+version = "0.1.46"
 description = "CAPE: Malware Configuration Extraction"
 authors = ["Kevin O'Reilly <kev@capesandbox.com>", "doomedraven <doomedraven@capesandbox.com>"]
 license = "MIT"
@@ -84,15 +83,9 @@ norecursedirs = "tests/zip_compound"
 select = ["E", "F"]
 ignore = ["E402","E501"]
 
-# [build-system]
-# requires = ["poetry-core>=1.0.0"]
-# build-backend = "poetry.core.masonry.api"
+[tool.poetry-dynamic-versioning]
+enable = true # Master switch to enable the plugin
 
 [build-system]
-requires = ["setuptools>=61.0", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools_scm]
-# Optional: configuration can go here if needed
-# For example, to use a file for local versioning:
-write_to = "cape_parsers/__version__.py"
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry.core.masonry.api"
