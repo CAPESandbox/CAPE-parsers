@@ -21,6 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0 # IMPORTANT: This fetches all history and tags
 
       - name: Checkout test files repo
         uses: actions/checkout@v4
@@ -50,6 +51,9 @@ jobs:
           sudo apt-get install yara
           poetry run pip install yara-python
           poetry run python -m pytest tests_parsers -s --import-mode=append
+
+      # setuptools-scm runs here automatically and sets the version
+      # from the Git tag associated with the release.
 
   format:
     runs-on: ubuntu-latest
