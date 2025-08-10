@@ -50,7 +50,7 @@ def extract_key_data(data, pe, key_match):
         # Read arbitrary number of byes from key offset and split on null bytes to extract key
         key = data[key_offset : key_offset + 0x40].split(b"\x00")[0]
     except Exception as e:
-        log.debug(f"There was an exception extracting the key: {e}")
+        log.debug("There was an exception extracting the key: %s", str(e))
         log.debug(traceback.format_exc())
         return False
     return key
@@ -70,7 +70,7 @@ def extract_config_data(data, pe, config_match):
         )
         campaign_id_ct = data[campaign_id_offset : campaign_id_offset + 0x10]
     except Exception as e:
-        log.debug(f"There was an exception extracting the campaign id: {e}")
+        log.debug("There was an exception extracting the campaign id: %s", str(e))
         log.debug(traceback.format_exc())
         return False, False, False
 
@@ -84,7 +84,7 @@ def extract_config_data(data, pe, config_match):
         )
         botnet_id_ct = data[botnet_id_offset : botnet_id_offset + 0x10]
     except Exception as e:
-        log.debug(f"There was an exception extracting the botnet id: {e}")
+        log.debug("There was an exception extracting the botnet id: %s", str(e))
         log.debug(traceback.format_exc())
         return False, False, False
 
@@ -99,7 +99,7 @@ def extract_config_data(data, pe, config_match):
         c2s_offset = pe.get_offset_from_rva(c2s_rva + int.from_bytes(config_match.group("c2s"), byteorder="little"))
         c2s_ct = data[c2s_offset : c2s_offset + 0x400]
     except Exception as e:
-        log.debug(f"There was an exception extracting the C2s: {e}")
+        log.debug("There was an exception extracting the C2s: %s", str(e))
         log.debug(traceback.format_exc())
         return False, False, False
 

@@ -360,11 +360,11 @@ class cobaltstrikeConfig:
             if parsed_setting == "Not Found" and quiet:
                 continue
             if not isinstance(parsed_setting, list):
-                log.debug("{: <{width}} - {val}".format(conf_name, width=COLUMN_WIDTH - 3, val=parsed_setting))
+                log.debug("{: <{width}} - {val}".format(conf_name, width=COLUMN_WIDTH - 3, val=parsed_setting)) # noqa: G001
             elif parsed_setting == []:
-                log.debug("{: <{width}} - {val}".format(conf_name, width=COLUMN_WIDTH - 3, val="Empty"))
+                log.debug("{: <{width}} - {val}".format(conf_name, width=COLUMN_WIDTH - 3, val="Empty")) # noqa: G001
             else:
-                log.debug("{: <{width}} - {val}".format(conf_name, width=COLUMN_WIDTH - 3, val=parsed_setting[0]))
+                log.debug("{: <{width}} - {val}".format(conf_name, width=COLUMN_WIDTH - 3, val=parsed_setting[0])) # noqa: G001
                 for val in parsed_setting[1:]:
                     log.debug(" " * COLUMN_WIDTH, end="")
                     print(val)

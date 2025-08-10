@@ -133,7 +133,7 @@ def extract_config(data):
     try:
         dotnet_file = dnfile.dnPE(data=data)
     except Exception as e:
-        log.debug(f"Exception when attempting to parse .NET file: {e}")
+        log.debug("Exception when attempting to parse .NET file: %s", str(e))
         log.debug(traceback.format_exc())
 
     # ldstr, stsfld
@@ -165,7 +165,7 @@ def extract_config(data):
             else:
                 user_strings[field_name] = string_index
         except Exception as e:
-            log.debug(f"There was an exception parsing user strings: {e}")
+            log.debug("There was an exception parsing user strings: %s", str(e))
             log.debug(traceback.format_exc())
 
     if c2_type is None:
