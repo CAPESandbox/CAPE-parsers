@@ -29,10 +29,22 @@ runs:
       shell: bash
       run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-    - name: Install test dependencies with uv
+    - name: Cache uv virtual environment
       shell: bash
-      # ToDo uv venv
-      run: uv pip sync --all-extras  pyproject.toml --system # Installs main + dev dependencies
+      uses: actions/cache@v4
+      id: cache-uv-venv
+      with:
+        path: .venv
+        key: ${{ runner.os }}-python-${{ matrix.python-version }}-uv-${{ hashFiles('poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-python-${{ matrix.python-version }}-uv-${{ hashFiles('poetry.lock') }}
+
+    - name: Install dependencies with uv (if cache missed)
+      shell: bash
+      if: steps.cache-uv-venv.outputs.cache-hit != 'true'
+      run: |
+        uv venv --python ${{ matrix.python-version }}
+        uv pip sync --all-extras pyproject.toml --system
 
     # - name: Install requirements
     #   shell: bash
