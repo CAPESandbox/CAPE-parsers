@@ -8,6 +8,13 @@ on:
     branches: [ main, staging ]
   pull_request:
     branches: [ main, staging ]
+  workflow_call:
+    inputs:
+      python-version:
+        description: 'The Python version to use'
+        required: true
+        type: string
+
 jobs:
   # This job calls your reusable setup workflow
   setup:
