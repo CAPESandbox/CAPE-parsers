@@ -10,7 +10,7 @@ jobs:
   setup:
     name: "Setup Environment"
     # Note the indentation and the './' prefix
-    uses: ./.github/actions/reusable-setup.yml
+    uses: ./.github/actions/python-setup/reusable-setup.yml
     with:
       python-version: '3.12'
 
