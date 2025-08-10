@@ -243,7 +243,7 @@ def extract_config(data):
         if c2s:
             cfg["CNCs"] = list(ARC4.new(key).decrypt(c2s).split(b"\x00")[0].decode().split(","))
     except Exception as e:
-        log.error("This is broken: %s", str(e), exc_info=True)
+        log.exception("This is broken: %s", str(e))
 
     if not cfg:
         cfg = extract_2024(pe, data)

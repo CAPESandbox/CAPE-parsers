@@ -211,7 +211,7 @@ def extract_config(filebuf):
                 config.setdefault("raw", {})[k] = v
 
     except Exception as e:
-        logger.error(f"Caught an exception: {e}")
+        logger.error("Caught an exception: %s", str(e))
 
     return config
 
