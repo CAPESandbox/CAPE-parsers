@@ -1,43 +1,32 @@
 name: Reusable Python and UV Setup
 
-# This 'workflow_call' trigger makes it a reusable workflow
+# CRITICAL: This makes the workflow "reusable"
 on:
   workflow_call:
-    # You can define inputs that the calling workflow can pass in
     inputs:
       python-version:
-        description: 'The Python version to use'
         required: true
         type: string
-        default: '3.10'
 
 jobs:
+  # The single job inside the reusable workflow
   setup-and-cache:
     runs-on: ubuntu-latest
-    # This job will now contain the logic from your old composite action
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
-
       - name: Install uv
         run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-
-      - name: Cache uv virtual environment
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         id: cache-uv-venv
         with:
           path: .venv
           key: ${{ runner.os }}-python-${{ inputs.python-version }}-uv-${{ hashFiles('poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-python-${{ inputs.python-version }}-uv-
-
-      - name: Install dependencies with uv (if cache missed)
-        if: steps.cache-uv-venv.outputs.cache-hit != 'true'
+      - if: steps.cache-uv-venv.outputs.cache-hit != 'true'
         run: |
           uv venv --python ${{ inputs.python-version }}
           uv pip sync --all-extras pyproject.toml

@@ -1,53 +1,35 @@
-name: Python package
-
-env:
-  COLUMNS: 132
+name: Main CI Pipeline
 
 on:
   push:
-    branches: [ main, staging ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, staging ]
-  workflow_call:
-    inputs:
-      python-version:
-        description: 'The Python version to use'
-        required: true
-        type: string
 
 jobs:
-  # This job calls your reusable setup workflow
+  # Job that calls the reusable workflow
   setup:
-    uses: ./.github/actions/python-setup/reusable-setup.yml
+    name: "Setup Environment"
+    # Note the indentation and the './' prefix
+    uses: ./.github/actions/reusable-setup.yml
     with:
-      python-version: '3.12' # Pass the python version as an input
+      python-version: '3.12'
 
-  # Your other jobs can now depend on the setup job
+  # Job that runs after the setup is complete
   test:
-    needs: setup # Ensures setup is complete before testing
+    name: "Run Tests"
+    needs: setup # Depends on the setup job
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # This job needs to recreate the environment, but it will be fast
-      # because the cache was already created and saved by the 'setup' job.
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
       - name: Install uv
         run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-
       - name: Restore cached venv
-        id: cache-uv-venv
-        uses: actions/cache/restore@v4 # Use cache/restore, as we don't need to save again
+        uses: actions/cache/restore@v4
         with:
           path: .venv
           key: ${{ runner.os }}-python-3.12-uv-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-python-3.12-uv-
-
       - name: Run tests
         run: uv run --no-project pytest
