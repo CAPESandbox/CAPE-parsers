@@ -31,7 +31,8 @@ runs:
 
     - name: Install test dependencies with uv
       shell: bash
-      run: uv pip sync --all-extras  pyproject.toml # Installs main + dev dependencies
+      # ToDo uv venv
+      run: uv pip sync --all-extras  pyproject.toml --system # Installs main + dev dependencies
 
     # - name: Install requirements
     #   shell: bash
