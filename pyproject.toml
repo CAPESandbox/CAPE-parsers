@@ -51,28 +51,15 @@ httpretty = "^1.1.4"
 func-timeout = "^4.3.5"
 pre-commit = "^2.19.0"
 
-# Doesnt work on github CI
-# [tool.poetry.requires-plugins]
-# poetry-plugin-export = ">=1.8"
+# [tool.isort]
+# profile = "black"
+# no_lines_before = ["FUTURE", "STDLIB"]
+# line_length = 132
+# supported_extensions = ["py"]
 
-[tool.ruff]
-exclude = [
-    "./analyzer/linux/dbus_next",
-]
-
-[tool.black]
-line-length = 132
-include = "\\.py(_disabled)?$"
-
-[tool.isort]
-profile = "black"
-no_lines_before = ["FUTURE", "STDLIB"]
-line_length = 132
-supported_extensions = ["py"]
-
-[tool.flake8]
-max-line-length = 132
-exclude = ".git,__pycache__,.cache,.venv"
+# [tool.flake8]
+# max-line-length = 132
+# exclude = ".git,__pycache__,.cache,.venv"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
@@ -80,9 +67,9 @@ testpaths = ["tests"]
 norecursedirs = "tests/zip_compound"
 asyncio_mode = "auto"
 
-[lint]
-select = ["E", "F"]
-ignore = ["E402","E501"]
+# [lint]
+# select = ["E", "F"]
+# ignore = ["E402","E501"]
 
 [tool.poetry-dynamic-versioning]
 enable = true # Master switch to enable the plugin
@@ -91,13 +78,9 @@ enable = true # Master switch to enable the plugin
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.black]
-line-length = 132
-include = "\\.py(_disabled)?$"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+# [tool.black]
+# line-length = 132
+# include = "\\.py(_disabled)?$"
 
 [tool.ruff]
 line-length = 132

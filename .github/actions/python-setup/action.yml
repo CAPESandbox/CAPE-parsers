@@ -26,7 +26,7 @@ runs:
         cache: 'poetry'
 
     - name: Install uv
-      run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      uses: astral-sh/setup-uv-action@v1
 
     - name: Install test dependencies with uv
       run: uv pip sync --all-extras  # Installs main + dev dependencies
