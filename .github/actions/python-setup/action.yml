@@ -29,6 +29,7 @@ runs:
       uses: astral-sh/setup-uv-action@v1
 
     - name: Install test dependencies with uv
+      shell: bash
       run: uv pip sync --all-extras  # Installs main + dev dependencies
 
     # - name: Install requirements
