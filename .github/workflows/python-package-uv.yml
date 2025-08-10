@@ -1,0 +1,84 @@
+name: Python package
+
+env:
+  COLUMNS: 132
+
+on:
+  push:
+    branches: [ main, staging ]
+  pull_request:
+    branches: [ main, staging ]
+
+jobs:
+  # This job calls your reusable setup workflow
+  setup:
+    uses: ./.github/actions/python-setup/reusable-setup.yml
+    with:
+      python-version: '3.10' # Pass the python version as an input
+
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+    if: ${{ github.ref == 'refs/heads/master' }}
+
+    steps:
+      - name: Format with black
+        run: uv run --no-project black .
+
+      # to be replaced with ruff
+      - name: Format imports with isort
+        run: uv run --no-project isort .
+
+      - name: Commit changes if any
+        # Skip this step if being run by nektos/act
+        if: ${{ !env.ACT }}
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "action@github.com"
+          if output=$(git status --porcelain) && [ ! -z "$output" ]; then
+            git commit -m "style: Automatic code formatting" -a
+            git push
+          fi
+
+  # Your other jobs can now depend on the setup job
+  test:
+        needs: setup # Ensures setup is complete before testing
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set Up Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: '3.12'
+
+            - name: "Install uv"
+              run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+            - name: "Restore cached venv"
+              id: cache-uv-venv
+              uses: actions/cache/restore@v4 # Use cache/restore, as we don't need to save again
+              with:
+                path: .venv
+                key: ${{ runner.os }}-python-3.12-uv-${{ hashFiles('poetry.lock') }}
+                restore-keys: |
+                    ${{ runner.os }}-python-3.12-uv-
+
+            - name: See if any parser changed
+              uses: dorny/paths-filter@v3
+              id: changes
+              with:
+                filters: |
+                  src:
+                    - 'cape_parsers/CAPE/core/*.py'
+                    - 'cape_parsers/CAPE/community/**.py'
+
+            - name: Test parsers only if any parser changed
+              if: steps.changes.outputs.src == 'true'
+              run: |
+                uv run --no-project pytest tests_parsers -s --import-mode=append
+            - name: "Run tests"
+              run: uv run --no-project pytest

@@ -12,7 +12,7 @@ runs:
       if: ${{ runner.os == 'Linux' }}
       shell: bash
       run: |
-        sudo apt-get update && sudo apt-get install -y --no-install-recommends python3-dev yara
+        sudo apt-get update && sudo apt-get install -y --no-install-recommends python3-dev
 
     - name: Install poetry
       shell: bash
@@ -25,28 +25,7 @@ runs:
         python-version: ${{ inputs.python-version }}
         cache: 'poetry'
 
-    - name: Install uv
+    - name: Install requirements
       shell: bash
-      run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-
-    - name: Cache uv virtual environment
-      shell: bash
-      uses: actions/cache@v4
-      id: cache-uv-venv
-      with:
-        path: .venv
-        key: ${{ runner.os }}-python-${{ matrix.python-version }}-uv-${{ hashFiles('poetry.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-python-${{ matrix.python-version }}-uv-${{ hashFiles('poetry.lock') }}
-
-    - name: Install dependencies with uv (if cache missed)
-      shell: bash
-      if: steps.cache-uv-venv.outputs.cache-hit != 'true'
       run: |
-        uv venv --python ${{ matrix.python-version }}
-        uv pip sync --all-extras pyproject.toml --system
-
-    # - name: Install requirements
-    #   shell: bash
-    #   run: |
-    #     PIP_BREAK_SYSTEM_PACKAGES=1 poetry install --no-interaction --no-root
+        PIP_BREAK_SYSTEM_PACKAGES=1 poetry install --no-interaction --no-root
