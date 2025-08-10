@@ -33,8 +33,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      # ToDo migrate black and isort to ruff
       - name: Run Ruff
-        run: poetry run ruff check . --line-length 132 --ignore E501,E402
+        run: uv run ruff check . --line-length 132 --ignore E501,E402
 
       - name: See if any parser changed
         uses: dorny/paths-filter@v3
@@ -48,9 +49,7 @@ jobs:
       - name: Test parsers only if any parser changed
         if: steps.changes.outputs.src == 'true'
         run: |
-          sudo apt-get install yara
-          poetry run pip install yara-python
-          poetry run python -m pytest tests_parsers -s --import-mode=append
+          uv run pytest tests_parsers -s --import-mode=append
 
       # setuptools-scm runs here automatically and sets the version
       # from the Git tag associated with the release.
@@ -73,11 +72,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Format with black
-        run: poetry run black .
+        run: uv run black .
 
       # to be replaced with ruff
       - name: Format imports with isort
-        run: poetry run isort .
+        run: uv run isort .
 
       - name: Commit changes if any
         # Skip this step if being run by nektos/act
