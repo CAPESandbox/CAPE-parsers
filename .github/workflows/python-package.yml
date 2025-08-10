@@ -35,7 +35,7 @@ jobs:
 
       # ToDo migrate black and isort to ruff
       - name: Run Ruff
-        run: uv run ruff check . --line-length 132 --ignore E501,E402
+        run: uv run --no-project ruff check . --line-length 132 --ignore E501,E402
 
       - name: See if any parser changed
         uses: dorny/paths-filter@v3
@@ -49,7 +49,7 @@ jobs:
       - name: Test parsers only if any parser changed
         if: steps.changes.outputs.src == 'true'
         run: |
-          uv run pytest tests_parsers -s --import-mode=append
+          uv run --no-project pytest tests_parsers -s --import-mode=append
 
       # setuptools-scm runs here automatically and sets the version
       # from the Git tag associated with the release.
@@ -72,11 +72,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Format with black
-        run: uv run black .
+        run: uv run --no-project black .
 
       # to be replaced with ruff
       - name: Format imports with isort
-        run: uv run isort .
+        run: uv run --no-project isort .
 
       - name: Commit changes if any
         # Skip this step if being run by nektos/act
