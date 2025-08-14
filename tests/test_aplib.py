@@ -2,7 +2,7 @@
 # This file is part of Cuckoo Sandbox - http://www.cuckoosandbox.org
 # See the file 'docs/LICENSE' for copying permission.
 
-from utils import aplib
+from cape_parsers.utils import aplib
 
 
 def test_apilib_decompress():
