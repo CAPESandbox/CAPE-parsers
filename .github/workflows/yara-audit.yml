@@ -10,7 +10,7 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ["3.12"]
 
     steps:
       - name: Check out repository code
@@ -22,14 +22,14 @@ jobs:
           repository: CAPESandbox/CAPE-TestFiles
           path: tests/data/
 
-      - uses: ./.github/actions/python-setup/
+      - uses: ./.github/workflows/reusable-setup.yml
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: |
           sudo apt install yara
-          poetry run pip install yara-python
+          uvx install yara-python
 
       - name: Run unit tests
-        run: poetry run pytest tests/test_yara.py -s --import-mode=append
+        run: uvx pytest tests/test_yara.py -s --import-mode=append
