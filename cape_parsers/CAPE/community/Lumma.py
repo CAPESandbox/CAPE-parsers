@@ -384,7 +384,7 @@ def extract_config(data):
                     decoded_c2 = xor_data(encoded_c2, xor_key)
 
                     if not contains_non_printable(decoded_c2):
-                        config.setdefault("CNCs", []).append("https://" +decoded_c2.decode())
+                        config.setdefault("CNCs", []).append("https://" + decoded_c2.decode())
                 except Exception as e:
                     print(e)
                     continue
