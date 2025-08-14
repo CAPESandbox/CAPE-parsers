@@ -32,4 +32,4 @@ jobs:
           path: .venv
           key: ${{ runner.os }}-python-3.12-uv-${{ hashFiles('poetry.lock') }}
       - name: Run tests
-        run: uv run --no-project pytest
+        run: uvx --no-project pytest
