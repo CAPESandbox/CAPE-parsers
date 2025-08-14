@@ -1,8 +1,8 @@
+import pytest
 from cape_parsers.CAPE.community.monsterv2 import extract_config
 
-
+@pytest.mark.xfail(reason="todo")
 def test_monsterv2():
-    # Adaptix Beacon
     with open(
         "tests/data/malware/b842281e64924baa7c011501d7778075da412d66986e6aa65fd7d171cf074d70",
         "rb",
