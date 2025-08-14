@@ -23,7 +23,7 @@
 import re
 import struct
 import sys
-
+from contextlib import suppress
 import pefile
 from Cryptodome.Cipher import DES3
 from Cryptodome.Util.Padding import unpad
@@ -128,7 +128,8 @@ def decoder(data):
     else:
         x = bytearray(img)
 
-    url_re = rb"https?:\/\/[a-zA-Z0-9\/\.:?\-_]+"
+    # ToDo add \.php
+    url_re = rb"https?:\/\/[a-zA-Z0-9\/\.:?\-_]+\.php"
     urls = re.findall(url_re, x)
     if not urls:
         for i in range(len(x)):
@@ -144,21 +145,23 @@ def decoder(data):
     confs = find_conf(img)
     if iv and iv not in (b"", -1) and confs != []:
         for conf in confs:
-            try:
+            with suppress(ValueError):
                 dec = DES3.new(key, DES3.MODE_CBC, iv)
                 temp = dec.decrypt(conf)
                 temp = unpad(temp, 8)
-                urls.append(b"http://" + temp)
-            except ValueError:
-                # wrong padding
-                pass
+                if not temp.endswith(b".php"):
+                    continue
+                urls.append("http://" + temp.decod())
     return urls
 
 
 def extract_config(filebuf):
 
     urls = decoder(filebuf)
-    return {"CNCs": [url.decode() for url in urls]}
+    if urls:
+        return {"CNCs": urls}
+    else:
+        return {}
 
 
 if __name__ == "__main__":
