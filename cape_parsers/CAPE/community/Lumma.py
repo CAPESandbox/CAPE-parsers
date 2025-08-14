@@ -351,7 +351,7 @@ def extract_config(data):
                         decrypted = chacha20_xor(c2_encrypted, key, nonce, counter)
                         c2 = extract_c2_domain(decrypted)
                         if c2 is not None and len(c2) > 10:
-                            config["CNCs"].append("https://"+c2.decode())
+                            config["CNCs"].append("https://" + c2.decode())
                             break
 
                 except Exception:
