@@ -318,7 +318,7 @@ def extract_config(data):
                 decoded_c2 = chacha20_xor(encrypted_string, key, nonce, counter).split(b"\x00", 1)[0]
                 if contains_non_printable(decoded_c2):
                     break
-                config.setdefault("CNCs", []).append(decoded_c2.decode())
+                config.setdefault("CNCs", []).append("https://" + decoded_c2.decode())
                 encrypted_strings_offset = encrypted_strings_offset + step_size
                 counter += 2
 
@@ -351,7 +351,7 @@ def extract_config(data):
                         decrypted = chacha20_xor(c2_encrypted, key, nonce, counter)
                         c2 = extract_c2_domain(decrypted)
                         if c2 is not None and len(c2) > 10:
-                            config["CNCs"].append(c2.decode())
+                            config["CNCs"].append("https://"+c2.decode())
                             break
 
                 except Exception:
@@ -384,7 +384,7 @@ def extract_config(data):
                     decoded_c2 = xor_data(encoded_c2, xor_key)
 
                     if not contains_non_printable(decoded_c2):
-                        config.setdefault("CNCs", []).append(decoded_c2.decode())
+                        config.setdefault("CNCs", []).append("https://" +decoded_c2.decode())
                 except Exception as e:
                     print(e)
                     continue

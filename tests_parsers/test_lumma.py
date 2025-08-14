@@ -10,15 +10,15 @@ def test_lumma():
         conf = extract_config(data.read())
         assert conf == {
             "CNCs": [
-                "roriwfq.xyz/auyw",
-                "narrathfpt.top/tekq",
-                "escczlv.top/bufi",
-                "localixbiw.top/zlpa",
-                "korxddl.top/qidz",
-                "stochalyqp.xyz/alfp",
-                "diecam.top/laur",
-                "citellcagt.top/gjtu",
-                "saokwe.xyz/plxa",
+                "https://roriwfq.xyz/auyw",
+                "https://narrathfpt.top/tekq",
+                "https://escczlv.top/bufi",
+                "https://localixbiw.top/zlpa",
+                "https://korxddl.top/qidz",
+                "https://stochalyqp.xyz/alfp",
+                "https://diecam.top/laur",
+                "https://citellcagt.top/gjtu",
+                "https://saokwe.xyz/plxa",
             ],
             "build": "490cef3c0ae4b5f900506d5988954245474b4975ef"
         }
