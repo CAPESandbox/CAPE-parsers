@@ -27,7 +27,6 @@ unicorn = ">=2.1.1"
 rat-king-parser = ">=4.1.0"
 
 ruff = ">=0.7.2"
-# isort = ">=5.13.2"
 
 [tool.distutils.bdist_wheel]
 universal = false
@@ -36,8 +35,6 @@ universal = false
 maco = ["maco"]
 
 [tool.poetry.group.dev.dependencies]
-black = "^24.3.0"
-isort = "^5.10.1"
 pytest = "7.2.2"
 pytest-pretty = "1.1.0"
 pytest-cov = "3.0.0"
@@ -51,25 +48,11 @@ httpretty = "^1.1.4"
 func-timeout = "^4.3.5"
 pre-commit = "^2.19.0"
 
-# [tool.isort]
-# profile = "black"
-# no_lines_before = ["FUTURE", "STDLIB"]
-# line_length = 132
-# supported_extensions = ["py"]
-
-# [tool.flake8]
-# max-line-length = 132
-# exclude = ".git,__pycache__,.cache,.venv"
-
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
 norecursedirs = "tests/zip_compound"
 asyncio_mode = "auto"
-
-# [lint]
-# select = ["E", "F"]
-# ignore = ["E402","E501"]
 
 [tool.poetry-dynamic-versioning]
 enable = true # Master switch to enable the plugin
@@ -77,10 +60,6 @@ enable = true # Master switch to enable the plugin
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
 build-backend = "poetry.core.masonry.api"
-
-# [tool.black]
-# line-length = 132
-# include = "\\.py(_disabled)?$"
 
 [tool.ruff]
 line-length = 132
