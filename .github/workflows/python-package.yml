@@ -73,11 +73,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Format with black
-        run: poetry run black .
+        run: uvx ruff format .
 
-      # to be replaced with ruff
-      - name: Format imports with isort
-        run: poetry run isort .
+      - name: Format imports with ruff isort
+        run: uvx ruff check --select I --fix .
 
       - name: Commit changes if any
         # Skip this step if being run by nektos/act

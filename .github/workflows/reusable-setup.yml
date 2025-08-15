@@ -29,4 +29,5 @@ jobs:
       - if: steps.cache-uv-venv.outputs.cache-hit != 'true'
         run: |
           uv venv --python ${{ inputs.python-version }}
-          uv pip sync --all-extras pyproject.toml
+          uvx pip sync --all-extras pyproject.toml
+          uvx pip install yara-python poetry poetry-dynamic-versioning poetry-plugin-export

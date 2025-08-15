@@ -10,6 +10,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  setup:
+    name: "Setup Environment"
+    # Note the indentation and the './' prefix
+    uses: ./.github/workflows/reusable-setup.yml
+    with:
+      python-version: ${{ matrix.python-version }}
   build:
     name: Build distribution 📦
     runs-on: ubuntu-latest
@@ -22,10 +28,6 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
 
-      - name: Install poetry
-        shell: bash
-        run: |
-          PIP_BREAK_SYSTEM_PACKAGES=1 pip install poetry poetry-dynamic-versioning --user
 
       - name: "Build package"
         run: poetry build

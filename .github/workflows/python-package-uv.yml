@@ -6,30 +6,63 @@ on:
   pull_request:
 
 jobs:
-  # Job that calls the reusable workflow
-  setup:
-    name: "Setup Environment"
-    # Note the indentation and the './' prefix
-    uses: ./.github/workflows/reusable-setup.yml
-    with:
-      python-version: '3.12'
-
-  # Job that runs after the setup is complete
-  test:
-    name: "Run Tests"
-    needs: setup # Depends on the setup job
+  lint:
+    name: "Lint & Format"
     runs-on: ubuntu-latest
     steps:
+      - name: "Setup Environment"
+        # Note the indentation and the './' prefix
+        uses: ./.github/workflows/reusable-setup.yml
+        with:
+          python-version: '3.12'
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.12' # Use one specific, modern version
+
+      - name: Check formatting with Ruff Formatter
+        run: uvx ruff format . --check
+
+      - name: Check import sorting with Ruff
+        run: uvx ruff check --select I .
+
+  test:
+    name: "Run Tests"
+    # needs: setup # Depends on the setup job
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # Allows all matrix jobs to run even if one fails
+      matrix:
+        python-version: ['3.10', '3.12']
+    steps:
+      - name: "Setup Environment"
+        # Note the indentation and the './' prefix
+        uses: ./.github/workflows/reusable-setup.yml
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Install uv
         run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.cargo/bin" >> $GITHUB_PATH
       - name: Restore cached venv
         uses: actions/cache/restore@v4
         with:
           path: .venv
-          key: ${{ runner.os }}-python-3.12-uv-${{ hashFiles('poetry.lock') }}
-      - name: Run tests
-        run: uvx pytest
+          key: ${{ runner.os }}-python-${{ matrix.python-version }}-uv-${{ hashFiles('poetry.lock') }}
+
+      - name: See if any parser changed
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            src:
+              - 'cape_parsers/CAPE/core/*.py'
+              - 'cape_parsers/CAPE/community/**.py'
+
+      - name: Test parsers only if any parser changed
+        if: steps.changes.outputs.src == 'true'
+        run: |
+          uvx python -m pytest tests_parsers -s --import-mode=append

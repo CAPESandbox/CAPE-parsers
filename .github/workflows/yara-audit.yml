@@ -26,10 +26,5 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: |
-          sudo apt install yara
-          uvx install yara-python
-
       - name: Run unit tests
         run: uvx pytest tests/test_yara.py -s --import-mode=append
