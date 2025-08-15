@@ -42,5 +42,5 @@ jobs:
 
           # Install dependencies from the lock file into the .venv
           # This is the most reliable and fastest way.
-          uvx pip sync --all-extras pyproject.toml
-          uvx pip install yara-python poetry poetry-dynamic-versioning poetry-plugin-export
+          uv run pip sync --all-extras pyproject.toml
+          uv pip install yara-python poetry poetry-dynamic-versioning poetry-plugin-export

@@ -18,10 +18,10 @@ jobs:
           python-version: '3.12'
 
       - name: Check formatting with Ruff Formatter
-        run: uvx ruff format . --check
+        run: uv run ruff format . --check
 
       - name: Check import sorting with Ruff
-        run: uvx ruff check --select I .
+        run: uv run ruff check --select I .
 
   test:
     name: "Run Tests"
