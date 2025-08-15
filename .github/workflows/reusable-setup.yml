@@ -1,6 +1,5 @@
 name: Reusable Python and UV Setup
 
-# CRITICAL: This makes the workflow "reusable"
 on:
   workflow_call:
     inputs:
@@ -9,25 +8,39 @@ on:
         type: string
 
 jobs:
-  # The single job inside the reusable workflow
   setup-and-cache:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      # --- REMOVED actions/checkout@v4 ---
+      # The caller workflow is responsible for checking out the code.
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
+
       - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-      - uses: actions/cache@v4
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Configure uv path
+        run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv virtual environment
+        uses: actions/cache@v4
         id: cache-uv-venv
         with:
           path: .venv
           key: ${{ runner.os }}-python-${{ inputs.python-version }}-uv-${{ hashFiles('poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-python-${{ inputs.python-version }}-uv-
-      - if: steps.cache-uv-venv.outputs.cache-hit != 'true'
+
+      - name: Create venv and install dependencies if cache missed
+        if: steps.cache-uv-venv.outputs.cache-hit != 'true'
         run: |
+          # Create the virtual environment
           uv venv --python ${{ inputs.python-version }}
+
+          # Install dependencies from the lock file into the .venv
+          # This is the most reliable and fastest way.
           uvx pip sync --all-extras pyproject.toml
           uvx pip install yara-python poetry poetry-dynamic-versioning poetry-plugin-export
