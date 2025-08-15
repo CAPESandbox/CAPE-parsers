@@ -16,8 +16,6 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Checkout test files repo
-        uses: actions/checkout@v4
         with:
           repository: CAPESandbox/CAPE-TestFiles
           path: tests/data/
