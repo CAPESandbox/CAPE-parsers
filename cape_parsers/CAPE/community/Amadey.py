@@ -149,7 +149,7 @@ def extract_config(data):
 
     keys = get_keys(pe, data)
     if not keys:
-        return
+        return {}
 
     decode_key = keys[0]
     rc4_key = keys[1]
