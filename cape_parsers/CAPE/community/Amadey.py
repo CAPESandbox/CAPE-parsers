@@ -13,7 +13,7 @@ rule Amadey_Key_String
         author = "YungBinary"
         description = "Find decryption key in Amadey."
     strings:
-        $chunk_1 = { 
+        $chunk_1 = {
             6A 20
             68 ?? ?? ?? ??
             B9 ?? ?? ?? ??
@@ -35,7 +35,7 @@ rule Amadey_Encoded_Strings
         author = "YungBinary"
         description = "Find encoded strings in Amadey."
     strings:
-        $chunk_1 = { 
+        $chunk_1 = {
             6A ??
             68 ?? ?? ?? ??
             B9 ?? ?? ?? ??
@@ -76,16 +76,16 @@ def get_keys(pe, data):
             key_string_rva = struct.unpack('i', data[offset + 3 : offset + 7])[0]
             key_string_dword_offset = pe.get_offset_from_rva(key_string_rva - image_base)
             key_string = pe.get_string_from_data(key_string_dword_offset, data)
-    
+
             if not b"=" in key_string:
                 keys.append(key_string.decode())
-            
+
             if len(keys) == 2:
                 return keys
 
         except Exception:
             continue
-    
+
     return []
 
 
@@ -103,7 +103,7 @@ def get_encoded_strings(pe, data):
             # Make sure the string matches length from operand
             if encoded_string_size != len(encoded_string):
                 continue
-            
+
             encoded_strings.append(encoded_string.decode())
 
         except Exception:
@@ -128,7 +128,7 @@ def decode_amadey_string(key: str, encoded_str: str) -> bytes:
         index_2 = alphabet.index(key[i % len(key)])
 
         index_result = (index_1 + (0x3F - index_2) + 0x3F) % 0x3F
-        
+
         decoded += alphabet[index_result]
 
     decoded = base64.b64decode(decoded)
@@ -164,12 +164,12 @@ def extract_config(data):
             decoded_strings.append(decoded_string.decode())
         except Exception:
             continue
-    
+
     if not decoded_strings:
         return {}
 
     decoded_strings = decoded_strings[:10]
-    final_config = {"C2": []}
+    final_config = {}
     version = ""
     install_dir = ""
     install_file = ""
@@ -179,7 +179,7 @@ def extract_config(data):
 
     for i in range(len(decoded_strings)):
         if re.match(ip_pattern, decoded_strings[i]):
-            final_config["C2"].append(f"http://" + decoded_strings[i] + decoded_strings[i+1])
+            final_config.setdefaults("CNCS", []).append("http://" + decoded_strings[i] + decoded_strings[i+1])
         elif re.match(version_pattern, decoded_strings[i]):
             version = decoded_strings[i]
         elif re.match(install_dir_pattern, decoded_strings[i]):
@@ -190,11 +190,12 @@ def extract_config(data):
     if version:
         final_config["version"] = version
     if install_dir:
-        final_config["install_dir"] = install_dir
+        final_config.setdefault("raw", {})["install_dir"] = install_dir
     if install_file:
-        final_config["install_file"] = install_file
-    
-    final_config["rc4_key"] = rc4_key
+        final_config.setdefault("raw", {})["install_file"] = install_file
+
+    final_config["cryptokey"] = rc4_key
+    final_config["cryptokey_type"] = "RC4"
 
     campaign_id = find_campaign_id(data)
     if campaign_id:
