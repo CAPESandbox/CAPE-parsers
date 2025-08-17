@@ -179,7 +179,7 @@ def extract_config(data):
 
     for i in range(len(decoded_strings)):
         if re.match(ip_pattern, decoded_strings[i]):
-            final_config.setdefault("CNCS", []).append("http://" + decoded_strings[i] + decoded_strings[i+1])
+            final_config.setdefault("CNCs", []).append("http://" + decoded_strings[i] + decoded_strings[i+1])
         elif re.match(version_pattern, decoded_strings[i]):
             version = decoded_strings[i]
         elif re.match(install_dir_pattern, decoded_strings[i]):
