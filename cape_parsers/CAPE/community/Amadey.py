@@ -77,7 +77,7 @@ def get_keys(pe, data):
             key_string_dword_offset = pe.get_offset_from_rva(key_string_rva - image_base)
             key_string = pe.get_string_from_data(key_string_dword_offset, data)
 
-            if not b"=" in key_string:
+            if b"=" not in key_string:
                 keys.append(key_string.decode())
 
             if len(keys) == 2:
@@ -145,7 +145,7 @@ def find_campaign_id(data):
 
 def extract_config(data):
     pe = pefile.PE(data=data, fast_load=True)
-    image_base = pe.OPTIONAL_HEADER.ImageBase
+    # image_base = pe.OPTIONAL_HEADER.ImageBase
 
     keys = get_keys(pe, data)
     if not keys:
