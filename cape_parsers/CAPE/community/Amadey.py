@@ -83,7 +83,7 @@ def get_keys(pe, data):
             if len(keys) == 2:
                 return keys
 
-        except:
+        except Exception:
             continue
     
     return []
@@ -106,7 +106,7 @@ def get_encoded_strings(pe, data):
             
             encoded_strings.append(encoded_string.decode())
 
-        except:
+        except Exception:
             continue
 
     return encoded_strings
@@ -162,7 +162,7 @@ def extract_config(data):
             if not decoded_string or contains_non_printable(decoded_string):
                 continue
             decoded_strings.append(decoded_string.decode())
-        except:
+        except Exception:
             continue
     
     if not decoded_strings:
