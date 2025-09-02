@@ -39,7 +39,11 @@ def extract_config(data: bytes) -> Dict[str, Any]:
     cfg: Dict[str, Any] = {}
     plaintext = ""
     pe = pefile.PE(data=data, fast_load=True)
-    data_section = [s for s in pe.sections if s.Name.find(b".data") != -1][0]
+    try:
+        data_section = [s for s in pe.sections if s.Name.find(b".data") != -1][0]
+    except IndexError:
+        return cfg
+
     if not data_section:
         return cfg
 
