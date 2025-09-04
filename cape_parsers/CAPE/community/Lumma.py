@@ -5,7 +5,7 @@ import struct
 from contextlib import suppress
 import pefile
 import yara
-
+from Cryptodome.Cipher import ChaCha20
 
 RULE_SOURCE_BUILD_ID = """rule LummaBuildId
 {
@@ -142,7 +142,7 @@ def contains_non_printable(byte_array):
             return True
     return False
 
-
+"""
 def mask32(x):
     return x & 0xFFFFFFFF
 
@@ -242,7 +242,7 @@ def chacha20_xor(message, key, nonce, counter):
         xor_key.append(message[i] ^ key_stream[i])
 
     return xor_key
-
+"""
 
 def extract_c2_domain(data):
     pattern = rb"([\w-]+\.[\w]+)\x00"
@@ -315,7 +315,9 @@ def extract_config(data):
             counter = 2
             for i in range(12):
                 encrypted_string = data[encrypted_strings_offset : encrypted_strings_offset + 40]
-                decoded_c2 = chacha20_xor(encrypted_string, key, nonce, counter).split(b"\x00", 1)[0]
+                chacha20_cipher = ChaCha20.new(key=key, nonce=nonce)
+                chacha20_cipher.seek(counter)
+                decoded_c2 = chacha20_cipher.decrypt(encrypted_string).split(b"\x00", 1)[0]
                 if contains_non_printable(decoded_c2):
                     break
                 config.setdefault("CNCs", []).append("https://" + decoded_c2.decode())
@@ -348,7 +350,10 @@ def extract_config(data):
                     c2_encrypted = data[c2_dword_offset : c2_dword_offset + 0x80]
                     counters = [0, 2, 4, 6, 8, 10, 12, 14, 16]
                     for counter in counters:
-                        decrypted = chacha20_xor(c2_encrypted, key, nonce, counter)
+                        # decrypted = chacha20_xor(c2_encrypted, key, nonce, counter)
+                        chacha20_cipher = ChaCha20.new(key=key, nonce=nonce)
+                        chacha20_cipher.seek(counter)
+                        decrypted = chacha20_cipher.decrypt(c2_encrypted).split(b"\x00", 1)[0]
                         c2 = extract_c2_domain(decrypted)
                         if c2 is not None and len(c2) > 10:
                             config["CNCs"].append("https://" + c2.decode())
