@@ -14,15 +14,12 @@ RULE_SOURCE = """rule MonsterV2Config
         author = "doomedraven,YungBinary"
     strings:
         $chunk_1 = {
-            41 B8 ?? ?? ?? ??
-            48 8D 15 ?? ?? ?? ??
-            48 8B CB
-            E8 ?? ?? ?? ??
-            48 8D 83 ?? ?? ?? ??
-            48 89 44 24 ??
-            48 89 6C 24 ??
-            4C 8B C7
-            48 8D 54 24 ??
+            41 B8 0E 04 00 00
+            48 8D 15 ?? ?? ?? 00
+            48 8B C?
+            E8 ?? ?? ?? ?? [3-17]
+            4C 8B C?
+            48 8D 54 24 28
             48 8B CE
             E8 ?? ?? ?? ??
         }
