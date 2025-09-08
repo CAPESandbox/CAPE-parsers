@@ -13,8 +13,8 @@ from Cryptodome.Util.Padding import unpad
 # 16s : 16-byte string (for iv)
 # I   : 4-byte unsigned int (for dword1)
 # I   : 4-byte unsigned int (for dword2)
-header_format = "<32s16sII"
-header_size = struct.calcsize(header_format)  # This will be 32 + 16 + 4 + 4 = 56 bytes
+HEADER_FORMAT = "<32s16sII"
+HEADER_SIZE = struct.calcsize(HEADER_FORMAT)  # This will be 32 + 16 + 4 + 4 = 56 bytes
 
 def parse_blob(data: bytes):
     """
