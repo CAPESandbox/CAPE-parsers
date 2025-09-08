@@ -26,7 +26,7 @@ def parse_blob(data: bytes):
     """
     aes_key, iv, dword1, dword2 = struct.unpack_from(header_format, config_blob, 0)
     cipher_size = dword1 ^ dword2
-    ciphertext = data[HEADER_SIZE : HEADER_SIZE + ciphertet_size]
+    cipher_data = data[HEADER_SIZE : HEADER_SIZE + ciphertet_size]
     return aes_key, iv, cipher_data
 
 
