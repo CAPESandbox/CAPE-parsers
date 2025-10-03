@@ -9,6 +9,7 @@ except ImportError as e:
 def extract_config(data: bytes):
     config = {}
     config_dict = {}
+    is_c2_found = False
     with suppress(Exception):
         if data[:2] == b"MZ":
             lines = extract_strings(data=data, on_demand=True, minchars=3)
@@ -25,11 +26,13 @@ def extract_config(data: bytes):
                 config_dict["Protocol"] = "Telegram"
                 config["CNCs"] = lines[base + x]
                 config_dict["Password"] = lines[base + x + 1]
+                is_c2_found = True
                 break
             # Data Exfiltration via Discord
             elif "discord" in lines[base + x]:
                 config_dict["Protocol"] = "Discord"
                 config["CNCs"] = [lines[base + x]]
+                is_c2_found = True
                 break
             # Data Exfiltration via FTP
             elif "ftp:" in lines[base + x]:
@@ -38,6 +41,7 @@ def extract_config(data: bytes):
                 username = lines[base + x + 1]
                 password = lines[base + x + 2]
                 config["CNCs"] = [f"ftp://{username}:{password}@{hostname}"]
+                is_c2_found = True
                 break
             # Data Exfiltration via SMTP
             elif "@" in lines[base + x]:
@@ -52,10 +56,12 @@ def extract_config(data: bytes):
                 config_dict["Password"] = lines[base + x + 1]
                 if "@" in lines[base + x + 2]:
                     config_dict["EmailTo"] = lines[base + x + 2]
+                is_c2_found = True    
                 break
         # Get Persistence Payload Filename
         for x in range(2, 22):
-            if ".exe" in lines[base + x]:
+            # Only extract Persistence Filename when a C2 is detected.
+            if ".exe" in lines[base + x] and is_c2_found:
                 config_dict["Persistence_Filename"] = lines[base + x]
                 break
         # Get External IP Check Services
