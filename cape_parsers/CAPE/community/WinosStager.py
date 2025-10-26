@@ -4,7 +4,6 @@ Author: x.com/YungBinary
 """
 
 from contextlib import suppress
-import struct
 import json
 import yara
 import re
@@ -63,7 +62,7 @@ def extract_config(data: bytes) -> dict:
 
         if config_dict:
             final_config = {}
-            
+
             # Handle extraction and formatting of CNCs
             final_config["CNCs"] = []
             for i in range(1, 4):
@@ -72,7 +71,7 @@ def extract_config(data: bytes) -> dict:
                     protocol = {"0": "udp", "1": "tcp"}.get(t)
                     if protocol:
                         final_config.setdefault("CNCs", []).append(f"{protocol}://{p}:{o}")
-    
+
             final_config["CNCs"] = list(set(final_config["CNCs"]))
             if not final_config["CNCs"]:
                 return {}
