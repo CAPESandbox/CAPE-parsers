@@ -32,19 +32,6 @@ def find_config(data):
         return match.group(0).decode("utf-16le")
 
 
-def yara_scan(raw_data, rule_source):
-    """
-    Yara scan and return first match.
-    """
-    yara_rules = yara.compile(source=rule_source)
-    matches = yara_rules.match(data=raw_data)
-
-    for match in matches:
-        for block in match.strings:
-            for instance in block.instances:
-                return instance.offset
-
-
 def extract_config(data: bytes) -> dict:
     config_dict = {}
 
