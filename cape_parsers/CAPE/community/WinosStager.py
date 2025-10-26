@@ -5,7 +5,6 @@ Author: x.com/YungBinary
 
 from contextlib import suppress
 import json
-import yara
 import re
 
 

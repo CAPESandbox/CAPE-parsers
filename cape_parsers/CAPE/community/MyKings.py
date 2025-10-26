@@ -26,7 +26,7 @@ def extract_base64_strings(data: bytes, minchars: int, maxchars: int) -> list:
     return strings
 
 
-def base64_and_printable(b64_string: str) -> bool:
+def base64_and_printable(b64_string: str):
     with suppress(Exception):
         decoded_bytes = base64.b64decode(b64_string)
         if not contains_non_printable(decoded_bytes):
