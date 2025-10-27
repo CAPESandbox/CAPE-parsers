@@ -9,7 +9,7 @@ def test_mykings():
     ) as data:
         conf = extract_config(data.read())
         assert conf == {
-            "CNCs": [
+            "raw": [
                 "46.28.71.32",
                 "108.174.197.104:777",
                 "cmd1.cmd-230812.ru:9999",

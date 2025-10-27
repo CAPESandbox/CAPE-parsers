@@ -50,23 +50,21 @@ def extract_config(data: bytes) -> dict:
             final_config = {}
 
             # Handle extraction and formatting of CNCs
-            final_config["CNCs"] = []
             for i in range(1, 4):
                 p, o, t = config_dict.get(f"p{i}"), config_dict.get(f"o{i}"), config_dict.get(f"t{i}")
                 if p and p != "127.0.0.1" and o:
                     protocol = {"0": "udp", "1": "tcp"}.get(t)
                     if protocol:
                         final_config.setdefault("CNCs", []).append(f"{protocol}://{p}:{o}")
-
-            final_config["CNCs"] = list(set(final_config["CNCs"]))
-            if not final_config["CNCs"]:
+            if "CNCs" not in final_config:
                 return {}
 
+            final_config["CNCs"] = list(set(final_config["CNCs"]))
             # Extract campaign ID
             final_config["campaign_id"] = "default" if config_dict["fz"] == "\u9ed8\u8ba4" else config_dict["fz"]
 
             # Map keys, e.g. dd -> execution_delay_seconds
-            final_config.update({CONFIG_KEY_MAP[k]: v for k, v in config_dict.items() if k in CONFIG_KEY_MAP})
+            final_config["raw"].update({CONFIG_KEY_MAP[k]: v for k, v in config_dict.items() if k in CONFIG_KEY_MAP})
 
             return final_config
 

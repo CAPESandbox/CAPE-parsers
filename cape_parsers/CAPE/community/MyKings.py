@@ -38,7 +38,7 @@ def extract_config(data: bytes) -> dict:
     with suppress(Exception):
         cncs = extract_base64_strings(data, 12, 60)
         if cncs:
-            config_dict["CNCs"] = cncs
+            config_dict["raw"] = cncs
             return config_dict
 
     return {}
