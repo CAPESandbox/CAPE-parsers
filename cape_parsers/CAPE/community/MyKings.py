@@ -39,7 +39,7 @@ def extract_config(data: bytes) -> dict:
         cncs = extract_base64_strings(data, 12, 60)
         if cncs:
             # as they don't have schema they going under raw
-            config_dict["raw"] = {"CNCS": cncs}
+            config_dict["raw"] = {"CNCs": cncs}
             return config_dict
 
     return {}

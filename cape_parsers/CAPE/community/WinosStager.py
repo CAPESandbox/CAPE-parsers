@@ -4,7 +4,6 @@ Author: x.com/YungBinary
 """
 
 from contextlib import suppress
-import json
 import re
 
 
@@ -33,6 +32,7 @@ def find_config(data):
 
 def extract_config(data: bytes) -> dict:
     config_dict = {}
+    final_config = {}
 
     with suppress(Exception):
         config = find_config(data)
@@ -47,7 +47,7 @@ def extract_config(data: bytes) -> dict:
         config_dict = dict(element.split(':', 1) for element in elements)
 
         if config_dict:
-            final_config = {}
+
 
             # Handle extraction and formatting of CNCs
             for i in range(1, 4):
@@ -55,7 +55,9 @@ def extract_config(data: bytes) -> dict:
                 if p and p != "127.0.0.1" and o:
                     protocol = {"0": "udp", "1": "tcp"}.get(t)
                     if protocol:
-                        final_config.setdefault("CNCs", []).append(f"{protocol}://{p}:{o}")
+                        cnc = f"{protocol}://{p}:{o}"
+                        final_config.setdefault("CNCs", []).append(cnc)
+
             if "CNCs" not in final_config:
                 return {}
 
@@ -66,13 +68,11 @@ def extract_config(data: bytes) -> dict:
             # Map keys, e.g. dd -> execution_delay_seconds
             final_config["raw"].update({CONFIG_KEY_MAP[k]: v for k, v in config_dict.items() if k in CONFIG_KEY_MAP})
 
-            return final_config
-
-    return {}
+    return final_config
 
 
 if __name__ == "__main__":
     import sys
 
     with open(sys.argv[1], "rb") as f:
-        print(json.dumps(extract_config(f.read()), indent=4))
+        print(extract_config(f.read()))
