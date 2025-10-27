@@ -45,10 +45,7 @@ def extract_config(data: bytes) -> dict:
         elements = [element for element in config.strip('|').split('|') if ':' in element]
         # Split each element for key : value in a dictionary
         config_dict = dict(element.split(':', 1) for element in elements)
-
         if config_dict:
-
-
             # Handle extraction and formatting of CNCs
             for i in range(1, 4):
                 p, o, t = config_dict.get(f"p{i}"), config_dict.get(f"o{i}"), config_dict.get(f"t{i}")
@@ -66,7 +63,7 @@ def extract_config(data: bytes) -> dict:
             final_config["campaign_id"] = "default" if config_dict["fz"] == "\u9ed8\u8ba4" else config_dict["fz"]
 
             # Map keys, e.g. dd -> execution_delay_seconds
-            final_config["raw"].update({CONFIG_KEY_MAP[k]: final_config[v] for k, v in CONFIG_KEY_MAP.items() if k in final_config})
+            final_config["raw"].update({v: config_dict[k] for k, v in CONFIG_KEY_MAP.items() if k in config_dict})
 
     return final_config
 
