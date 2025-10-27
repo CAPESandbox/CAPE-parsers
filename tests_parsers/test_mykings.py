@@ -9,11 +9,13 @@ def test_mykings():
     ) as data:
         conf = extract_config(data.read())
         assert conf == {
-            "raw": [
-                "46.28.71.32",
-                "108.174.197.104:777",
-                "cmd1.cmd-230812.ru:9999",
-                "https://pastebin.com/raw/vz9pet6K",
-                "250922.duckdns.org"
-            ]
+            "raw": {
+                "CNCs": [
+                    "46.28.71.32",
+                    "108.174.197.104:777",
+                    "cmd1.cmd-230812.ru:9999",
+                    "https://pastebin.com/raw/vz9pet6K",
+                    "250922.duckdns.org"
+                ]
+            }
         }
