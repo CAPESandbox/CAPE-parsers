@@ -66,7 +66,7 @@ def extract_config(data: bytes) -> dict:
             final_config["campaign_id"] = "default" if config_dict["fz"] == "\u9ed8\u8ba4" else config_dict["fz"]
 
             # Map keys, e.g. dd -> execution_delay_seconds
-            final_config["raw"].update({CONFIG_KEY_MAP[k]: v for k, v in config_dict.items() if k in CONFIG_KEY_MAP})
+            final_config["raw"].update({CONFIG_KEY_MAP[k]: final_config[v] for k, v in CONFIG_KEY_MAP.items() if k in final_config})
 
     return final_config
 
