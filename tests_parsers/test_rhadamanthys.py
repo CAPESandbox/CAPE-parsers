@@ -6,11 +6,12 @@ from cape_parsers.CAPE.core.Rhadamanthys import extract_config
 
 
 def test_rhadamanthys():
-    with open("tests/data/malware/b70519d6094fa55da2b86d897be0040ee84d0b3ef61ab4fd8d08a20628a67497", "rb") as data:
+    with open("tests/data/malware/aec7e18e752d06b62ecf48a392dacb9e0ca476ade84f01c1f5114536e22207f8", "rb") as data:
         conf = extract_config(data.read())
         assert conf == {
-            "raw": {"Reexecution_delay": 0},
             "CNCs": [
-                "https://51.75.171.9:5151/9640d96bbead45f349f3ab9/Xteam30.api"
+                "https://185.198.234.232/apichk/bief8u31.ao3gp",
+                "https://104.164.55.233/apichk/bief8u31.ao3gp",
+                "https://103.245.231.203/apichk/bief8u31.ao3gp"
             ]
         }

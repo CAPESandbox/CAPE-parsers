@@ -91,7 +91,7 @@ def chacha20_stream(key, nonce, length, blocknum):
 
 
 def decrypt_config(data):
-    decrypted_config = b"\x21\x52\x48\x59"
+    decrypted_config = b""
     data_len = len(data)
     v3 = 0
     while True:
@@ -118,38 +118,117 @@ def chacha20_xor(custom_b64_decoded, key, nonce):
     return xor_key
 
 
-def extract_strings(data, minchars, maxchars):
-    apat = b"([\x20-\x7e]{" + str(minchars).encode() + b"," + str(maxchars).encode() + b"})\x00"
-    strings = [string.decode() for string in re.findall(apat, data)]
-    match = re.search(apat, data)
-    if not match:
-        return None
-    upat = b"((?:[\x20-\x7e][\x00]){" + str(minchars).encode() + b"," + str(maxchars).encode() + b"})\x00\x00"
-    strings.extend(str(ws.decode("utf-16le")) for ws in re.findall(upat, data))
+def extract_base64_strings(data, minchars, maxchars):
+    apat = b"([A-Za-z0-9-|]{" + str(minchars).encode() + b"," + str(maxchars).encode() + b"})\x00"
+    strings = [s.decode() for s in re.findall(apat, data)]
+    upat = b"((?:[A-Za-z0-9-|]\x00){" + str(minchars).encode() + b"," + str(maxchars).encode() + b"})\x00\x00"
+    strings.extend(ws.decode("utf-16le") for ws in re.findall(upat, data))
     return strings
 
 
 def extract_c2_url(data):
     pattern = b"(http[\x20-\x7e]+)\x00"
     match = re.search(pattern, data)
-    return match.group(1).decode()
+    if match:
+        return match.group(1).decode()
 
 
-def is_potential_custom_base64(string):
-    custom_alphabet = "ABC1fghijklmnop234NOPQRSTUVWXY567DEFGHIJKLMZ089abcdeqrstuvwxyz-|"
-    for c in string:
-        if c not in custom_alphabet:
-            return False
-    return True
-
-
-def custom_b64decode(data):
+def custom_b64decode(data: bytes, custom_alphabet: bytes):
     """Decodes base64 data using a custom alphabet."""
     standard_alphabet = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-    custom_alphabet = b"ABC1fghijklmnop234NOPQRSTUVWXY567DEFGHIJKLMZ089abcdeqrstuvwxyz-|"
     # Translate the data back to the standard alphabet before decoding
     table = bytes.maketrans(custom_alphabet, standard_alphabet)
     return base64.b64decode(data.translate(table), validate=True)
+
+
+def lzo_noheader_decompress(data: bytes, decompressed_size: int):
+    src = 0
+    dst = bytearray()
+    length = len(data)
+
+    while src < length:
+        ctrl = data[src]
+        src += 1
+
+        if ctrl == 0x20:
+            match_len = data[src]
+            src += 1
+            start = len(dst) - match_len - 1
+            end = start + 3
+            #print(f"Control code: {hex(ctrl)}, Offset backtrack length: {hex(match_len)}, Current offset: {hex(len(dst))}, New offset: {hex(start)}")
+            dst.extend(dst[start:end])
+
+        elif ctrl >= 0xE0 or ctrl == 0x40:
+            x = ((ctrl >> 5) - 1) + 3
+            if ctrl >= 0xE0:
+                copy_len = data[src] + x
+            elif ctrl == 0x40:
+                copy_len = x
+            start = data[src + 1]
+            if ctrl == 0x40:
+                start = data[src]
+            if ctrl >= 0xE0:
+                src += 2
+            elif ctrl == 0x40:
+                src += 1
+            offset = len(dst) - start - 1
+            #print(f"Control code: {hex(ctrl)}, Offset backtrack length: {hex(start)}, Current offset: {hex(len(dst))}, New offset: {hex(len(dst) - start)}, Length to copy: {hex(copy_len)}")
+            dst.extend(dst[offset:offset+copy_len])
+
+        else:
+            # Literal run
+            literal_len = (ctrl & 0x1F) + 1
+            #print(f"Control code: {hex(ctrl)}, Literal length: {hex(literal_len)}")
+            dst.extend(data[src:src+literal_len])
+            src += literal_len
+
+        if len(dst) == decompressed_size:
+            return bytes(dst)
+
+
+def parse_compression_header(config: bytes):
+    """Parse compressed size, decompressed size, and data offset from config"""
+
+    # 0x2A when looking at the config in memory
+    base_offset = 0x26
+
+    # Compressed data offset field, for calculating the offset to the compressed buffer
+    comp_offset_field = config[base_offset]
+    # Number of bytes the field spans
+    comp_offset_size_len = (comp_offset_field & 3) + 1
+    for i in range(1, comp_offset_size_len):
+        comp_offset_field |= config[base_offset + i] << (8 * i)
+    
+    comp_size_offset = comp_offset_field >> 2
+
+    # Compressed size field, for finding the size of the compressed buffer
+    comp_offset = base_offset + comp_offset_size_len
+    comp_size_field = config[comp_offset]
+    # Number of bytes the field spans
+    comp_size_len = (comp_size_field & 3) + 1
+    for i in range(1, comp_size_len):
+        comp_size_field |= config[comp_offset + i] << (8 * i)
+
+    # Decompressed size field
+    decomp_field_offset = base_offset + comp_offset_size_len + comp_size_len
+    decomp_size_field = config[decomp_field_offset]
+    # Number of bytes the field spans
+    decomp_field_len = (decomp_size_field & 3) + 1
+    for i in range(1, decomp_field_len):
+        decomp_size_field |= config[decomp_field_offset + i] << (8 * i)
+
+    # Calculate return values
+    decompressed_size = decomp_size_field >> 2
+    compressed_data_offset = decomp_field_offset + comp_size_len + comp_size_offset
+    compressed_size_key = config[0x28] << 8
+    compressed_size = (compressed_size_key | comp_size_field) >> 2
+    compressed_data = config[compressed_data_offset : compressed_data_offset + compressed_size]
+
+    return {
+        "compressed_size": compressed_size,
+        "decompressed_size": decompressed_size,
+        "compressed_data": compressed_data
+    }
 
 
 def extract_config(data):
@@ -162,24 +241,52 @@ def extract_config(data):
         key = b"\x52\xAB\xDF\x06\xB6\xB1\x3A\xC0\xDA\x2D\x22\xDC\x6C\xD2\xBE\x6C\x20\x17\x69\xE0\x12\xB5\xE6\xEC\x0E\xAB\x4C\x14\x73\x4A\xED\x51"
         nonce = b"\x5F\x14\xD7\x9C\xFC\xFC\x43\x9E\xC3\x40\x6B\xBA"
 
-        extracted_strings = extract_strings(data, 0x100, 0x100)
+        custom_alphabets = [
+            b"ABC1fghijklmnop234NOPQRSTUVWXY567DEFGHIJKLMZ089abcdeqrstuvwxyz-|",
+            b"4NOPQRSTUVWXY567DdeEqrstuvwxyz-ABC1fghop23Fijkbc|lmnGHIJKLMZ089a"
+        ]
+
+        # Extract base64 strings
+        extracted_strings = extract_base64_strings(data, 140, 256)
+        if not extracted_strings:
+            return config_dict
+
         for string in extracted_strings:
             try:
-                if not is_potential_custom_base64(string):
-                    continue
+                custom_b64_decoded = custom_b64decode(string, custom_alphabets[0])
 
-                custom_b64_decoded = custom_b64decode(string)
                 xor_key = chacha20_xor(custom_b64_decoded, key, nonce)
-                decrypted_config = decrypt_config(xor_key)
-                reexecution_delay = int.from_bytes(decrypted_config[5:7], byteorder="little")
 
-                c2_url = extract_c2_url(decrypted_config)
-                if not c2_url:
-                    continue
-                config_dict = {"raw": {"Reexecution_delay": reexecution_delay}, "CNCs": [c2_url]}
-                return config_dict
+                # Decrypted, but may still be the compressed malware configuration
+                config = decrypt_config(xor_key)
+                # Attempt to extract C2 url, only works in version prior to 0.9.2
+                c2_url = extract_c2_url(config)
+                if c2_url:
+                    config_dict = {"CNCs": [c2_url]}
+                else:
+                    # Handle new variants that compress the Command and Control server(s)
+                    custom_b64_decoded = custom_b64decode(string, custom_alphabets[1])
+                    xor_key = chacha20_xor(custom_b64_decoded, key, nonce)
+                    config = decrypt_config(xor_key)
+
+                    parsed = parse_compression_header(config)
+                    if not parsed:
+                        return config_dict
+
+                    decompressed = lzo_noheader_decompress(parsed['compressed_data'], parsed['decompressed_size'])
+
+                    pattern = re.compile(b'.\x80')
+                    chunks = pattern.split(decompressed)
+
+                    cncs = [f"https://{chunk.decode()}" for chunk in pattern.split(decompressed) if chunk]
+                    if cncs:
+                        config_dict = {"CNCs": cncs}
+                        return config_dict
+
             except Exception:
                 continue
+        
+        return config_dict
 
 
 if __name__ == "__main__":
