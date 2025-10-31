@@ -198,7 +198,7 @@ def parse_compression_header(config: bytes):
     comp_offset_size_len = (comp_offset_field & 3) + 1
     for i in range(1, comp_offset_size_len):
         comp_offset_field |= config[base_offset + i] << (8 * i)
-    
+
     comp_size_offset = comp_offset_field >> 2
 
     # Compressed size field, for finding the size of the compressed buffer
@@ -251,7 +251,6 @@ def extract_config(data):
         if not extracted_strings:
             return config_dict
 
-        
         pattern = re.compile(b'.\x80')
         for string in extracted_strings:
             try:
@@ -285,7 +284,7 @@ def extract_config(data):
 
             except Exception:
                 continue
-        
+
         return config_dict
 
 
