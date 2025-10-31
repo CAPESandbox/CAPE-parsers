@@ -278,8 +278,6 @@ def extract_config(data):
 
                     decompressed = lzo_noheader_decompress(parsed['compressed_data'], parsed['decompressed_size'])
 
-                    chunks = pattern.split(decompressed)
-
                     cncs = [f"https://{chunk.decode()}" for chunk in pattern.split(decompressed) if chunk]
                     if cncs:
                         config_dict = {"CNCs": cncs}
