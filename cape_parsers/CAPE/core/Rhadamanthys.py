@@ -251,6 +251,8 @@ def extract_config(data):
         if not extracted_strings:
             return config_dict
 
+        
+        pattern = re.compile(b'.\x80')
         for string in extracted_strings:
             try:
                 custom_b64_decoded = custom_b64decode(string, custom_alphabets[0])
@@ -276,7 +278,6 @@ def extract_config(data):
 
                     decompressed = lzo_noheader_decompress(parsed['compressed_data'], parsed['decompressed_size'])
 
-                    pattern = re.compile(b'.\x80')
                     chunks = pattern.split(decompressed)
 
                     cncs = [f"https://{chunk.decode()}" for chunk in pattern.split(decompressed) if chunk]
