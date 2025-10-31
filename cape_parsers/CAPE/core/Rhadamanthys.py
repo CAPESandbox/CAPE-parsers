@@ -219,7 +219,7 @@ def parse_compression_header(config: bytes):
 
     # Calculate return values
     decompressed_size = decomp_size_field >> 2
-    compressed_data_offset = decomp_field_offset + comp_size_len + comp_size_offset
+    compressed_data_offset = decomp_field_offset + decomp_field_len + comp_size_offset
     compressed_size_key = config[0x28] << 8
     compressed_size = (compressed_size_key | comp_size_field) >> 2
     compressed_data = config[compressed_data_offset : compressed_data_offset + compressed_size]
@@ -263,6 +263,7 @@ def extract_config(data):
                 c2_url = extract_c2_url(config)
                 if c2_url:
                     config_dict = {"CNCs": [c2_url]}
+                    return config_dict
                 else:
                     # Handle new variants that compress the Command and Control server(s)
                     custom_b64_decoded = custom_b64decode(string, custom_alphabets[1])
