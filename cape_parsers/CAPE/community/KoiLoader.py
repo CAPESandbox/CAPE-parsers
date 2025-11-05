@@ -119,7 +119,7 @@ def extract_config(data):
         encoded_payload = remove_nulls(encoded_payload, encoded_payload_size)
         decoded_payload = xor_data(encoded_payload, xor_key)
         cncs = find_c2(decoded_payload)
-        if cncs and list(filter(cncs, None)):
+        if cncs:
             config["CNCs"] = cncs
 
     return config
