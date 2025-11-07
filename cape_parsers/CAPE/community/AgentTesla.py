@@ -83,7 +83,13 @@ def extract_config(data: bytes):
                             config["CNCs"] = lines[base + index + x]
                             break
     if config or config_dict:
-        return config.setdefault("raw", config_dict)
+        config.setdefault("raw", config_dict)
+
+        # If the data exfiltration is done through SMTP, then patch the extracted CNCs to include SMTP credentials
+        if config_dict.get("Protocol") == "SMTP":
+            config['CNCs'] = [f"smtp://{config_dict.get('Username')}:{config_dict.get('Password')}@{domain}:{config_dict.get('Port','587')}" for domain in config_dict.get('CNCs', [])]
+
+        return config
 
 if __name__ == "__main__":
     import sys
