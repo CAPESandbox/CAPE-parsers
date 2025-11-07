@@ -6,7 +6,7 @@ def test_adaptixbeacon():
     with open("tests/data/malware/f78f5803be5704420cbb2e0ac3c57fcb3d9cdf443fbf1233c069760bee115b5d", "rb") as data:
         conf = extract_config(data.read())
         assert conf == {
-            "raw":{
+            "raw": {
                 "cryptokey": "9030edf2700574ff942f8dadb826fac8",
                 "cryptokey_type": "RC4",
                 "agent_type": "BE4C0149",
@@ -24,5 +24,9 @@ def test_adaptixbeacon():
                 "working_time": 0,
                 "sleep_delay": 20,
                 "jitter_delay": 20,
-            }
+            },
+            "cryptokey": "9030edf2700574ff942f8dadb826fac8",
+            "cryptokey_type": "RC4",
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 Edg/131.0.2903.86",
+            "CNCs": ["https://689535ed-3.b-cdn.net:443/amazon/Trust/disputes/press-requests.php"],
         }
