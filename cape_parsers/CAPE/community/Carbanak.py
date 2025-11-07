@@ -18,7 +18,6 @@ import re
 from contextlib import suppress
 
 import pefile
-
 import yara
 
 log = logging.getLogger(__name__)
@@ -169,7 +168,13 @@ def extract_config(filebuf):
         c2_dec = decode_string(items[10], sbox).decode("utf8")
         if "|" in c2_dec:
             c2_dec = c2_dec.split("|")
-        cfg["CNCs"] = c2_dec
+        for c2 in c2_dec:
+            # Assign the proper scheme based on the port
+            if c2.endswith(':443'):
+                c2 = f"https://{c2}"
+            else:
+                c2 = f"http://{c2}"
+            cfg.setdefault("CNCs", []).append(c2)
         if float(cfg["version"]) < 1.7:
             cfg["campaign"] = decode_string(items[276], sbox).decode("utf8")
         else:
