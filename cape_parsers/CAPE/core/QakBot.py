@@ -5,21 +5,20 @@
 DESCRIPTION = "Qakbot configuration parser."
 AUTHOR = "threathive, r1n9w0rm"
 
-import sys
 import datetime
 import hashlib
 import ipaddress
 import logging
 import socket
 import struct
+import sys
 from contextlib import suppress
 
 import pefile
+import yara
 from Cryptodome.Cipher import AES, ARC4
 from Cryptodome.Hash import SHA256
 from Cryptodome.Util.Padding import unpad
-
-import yara
 
 try:
     HAVE_BLZPACK = True
@@ -494,7 +493,11 @@ def extract_config(filebuf):
         for k, v in config.items():
             end_config.setdefault(k, v)
     if end_config:
-        return {"raw": end_config}
+        output = {"raw": end_config}
+        if "C2s" in end_config:
+            # Prefix with tcp://
+            output["CNCs"] = [f"http://{c2}" for c2 in end_config["C2s"]]
+        return output
 
 
 if __name__ == "__main__":
