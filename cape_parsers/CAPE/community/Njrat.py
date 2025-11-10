@@ -176,7 +176,7 @@ def extract_config(data):
     config = get_clean_config(config_dict)
     if config:
         if config.get("domain") and config.get("port"):
-            conf["CNCs"] = [f"{config['domain']}:{config['port']}"]
+            conf["CNCs"] = [f"tcp://{config['domain']}:{config['port']}"]
 
         if config.get("campaign_id"):
             conf["campaign"] = config["campaign_id"]
