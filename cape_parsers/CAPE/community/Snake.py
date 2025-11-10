@@ -38,7 +38,7 @@ def handle_plain(dotnet_file, c2_type, user_strings):
     if c2_type == "Telegram":
         token = dotnet_file.net.user_strings.get(user_strings_list[15]).value.__str__()
         chat_id = dotnet_file.net.user_strings.get(user_strings_list[16]).value.__str__()
-        return {"raw": {"Type": "Telegram"}, "CNCs": f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}"}
+        return {"raw": {"Type": "Telegram"}, "CNCs": [f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}"]}
     elif c2_type == "SMTP":
         smtp_from = dotnet_file.net.user_strings.get(user_strings_list[7]).value.__str__()
         smtp_password = dotnet_file.net.user_strings.get(user_strings_list[8]).value.__str__()
@@ -106,7 +106,7 @@ def handle_encrypted(dotnet_file, data, c2_type, user_strings):
     if decrypted_strings:
         if c2_type == "Telegram":
             token, chat_id = decrypted_strings
-            config_dict = {"raw": {"Type": "Telegram"}, "CNCs": f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}"}
+            config_dict = {"raw": {"Type": "Telegram"}, "CNCs": [f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}"]}
         elif c2_type == "SMTP":
             smtp_from, smtp_password, smtp_host, smtp_to, smtp_port = decrypted_strings
             config_dict = {
