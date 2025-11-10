@@ -58,8 +58,10 @@ def extract_config(memdump_path, read=False):
                     artifacts_raw["downloads"].append(url.decode())
         except Exception as e:
             print(e, sys.exc_info(), "PONY")
-    config["CNCs"] = list(set(config["controllers"]))
-    config.setdefault("raw", {})["downloads"] = list(set(artifacts_raw["downloads"]))
+    if "controllers" in config:
+        config["CNCs"] = list(set(config["controllers"]))
+    if "downloads" in artifacts_raw:
+        config.setdefault("raw", {})["downloads"] = list(set(artifacts_raw["downloads"]))
     return config
 
 
