@@ -6,7 +6,6 @@ from contextlib import suppress
 from io import BytesIO
 
 import pefile
-
 import yara
 
 rule_source = """
@@ -83,7 +82,7 @@ def get_c2s(data, count):
         c2_size = struct.unpack("I", data.read(4))[0]
         c2 = get_wchar_string(data, c2_size)
         port, val1, val2 = struct.unpack("III", data.read(12))
-        c2_list.append(f"{c2}:{port}")
+        c2_list.append(f"http://{c2}:{port}")
     return c2_list
 
 
