@@ -3,9 +3,8 @@ Description: Winos 4.0 "OnlineModule" config parser
 Author: x.com/YungBinary
 """
 
-from contextlib import suppress
 import re
-
+from contextlib import suppress
 
 CONFIG_KEY_MAP = {
     "dd": "execution_delay_seconds",
@@ -60,7 +59,11 @@ def extract_config(data: bytes) -> dict:
 
             final_config["CNCs"] = list(set(final_config["CNCs"]))
             # Extract campaign ID
-            final_config["campaign_id"] = "default" if config_dict["fz"] == "\u9ed8\u8ba4" else config_dict["fz"]
+            final_config["campaign"] = "default" if config_dict["fz"] == "\u9ed8\u8ba4" else config_dict["fz"]
+
+            # Check if the version has been extracted
+            if "bb" in config_dict:
+                final_config["version"] = config_dict["bb"]
 
             # Map keys, e.g. dd -> execution_delay_seconds
             final_config["raw"] = {v: config_dict[k] for k, v in CONFIG_KEY_MAP.items() if k in config_dict}
