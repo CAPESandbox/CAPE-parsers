@@ -61,7 +61,11 @@ def extract_config(data):
             enc_data = f.read(data_len - 32)
             config = decrypt_config(enc_data, key, iv)
             if config:
-                return {"raw": config}
+                output = {"raw": config}
+                output["CNCs"] = [
+                    f"{'http' if not config['secure'] else 'https'}://{config['host']}:{config['port']}{config['path']}"
+                ]
+                return output
     except Exception as e:
         log.error("Configuration decryption failed: %s", e)
         return {}

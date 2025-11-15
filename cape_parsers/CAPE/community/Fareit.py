@@ -55,11 +55,11 @@ def extract_config(memdump_path, read=False):
                 if gate_url.match(url):
                     config.setdefault("CNCs", []).append(url.decode())
                 elif exe_url.match(url) or dll_url.match(url):
-                    artifacts_raw["downloads"].append(url.decode())
+                    artifacts_raw.setdefault("downloads", []).append(url.decode())
         except Exception as e:
             print(e, sys.exc_info(), "PONY")
-    config["CNCs"] = list(set(config["controllers"]))
-    config.setdefault("raw", {})["downloads"] = list(set(artifacts_raw["downloads"]))
+    if "downloads" in artifacts_raw:
+        config.setdefault("raw", {})["downloads"] = list(set(artifacts_raw["downloads"]))
     return config
 
 

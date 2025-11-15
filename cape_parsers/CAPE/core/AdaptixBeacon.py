@@ -59,7 +59,19 @@ def parse_http_config(rc4_key: bytes, data: bytes) -> dict:
     config["sleep_delay"] = read("<I")
     config["jitter_delay"] = read("<I")
 
-    return {"raw": config}
+    output = {"raw": config}
+
+    # Map some fields to CAPE's output format, where possible
+    output['cryptokey'] = config['cryptokey']
+    output['cryptokey_type'] = config['cryptokey_type']
+    output['user_agent'] = config['user_agent']
+    output['CNCs'] = [f"{'https' if config['use_ssl'] else 'http'}://{server}:{ports[i]}{config['uri']}"
+                      for i, server in enumerate(servers)]
+
+    # TODO: Does agent_type map to version or build?
+    # output['version'] = output['raw']['agent_type']
+
+    return output
 
 
 def extract_config(filebuf: bytes) -> dict:

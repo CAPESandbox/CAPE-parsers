@@ -188,7 +188,17 @@ def extract_config(filebuf):
         cncs.append(config_dict["raw"]["BackupConnectionHost"])
     if config_dict.get("raw", {}).get("ConnectionPort") and cncs:
         port = config_dict["raw"]["ConnectionPort"]
-        config_dict["CNCs"] = [f"{cnc}:{port}" for cnc in cncs]
+        config_dict["CNCs"] = [f"tcp://{cnc}:{port}" for cnc in cncs]
+
+    if "Mutex" in config_dict.get("raw", {}):
+        config_dict["mutex"] = config_dict["raw"]["Mutex"]
+
+    if "Version" in config_dict.get("raw", {}):
+        config_dict["version"] = config_dict["raw"]["Version"]
+
+    if "DefaultGroup" in config_dict.get("raw", {}):
+        config_dict["campaign"] = config_dict["raw"]["DefaultGroup"]
+
     return config_dict
 
 

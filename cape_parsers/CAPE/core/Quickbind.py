@@ -118,10 +118,11 @@ def extract_config(filebuf):
             cfg["campaign"] = campaign
 
         if c2s:
-            cfg["CNCs"] = c2s
+            cfg["CNCs"] = [f"http://{c2}" for c2 in c2s]
 
         if mutexes:
-            cfg["mutex"] = list(set(mutexes))
+            mutexes = list(set(mutexes))
+            cfg["mutex"] = mutexes[0] if len(mutexes) == 1 else mutexes
 
     return cfg
 

@@ -15,8 +15,8 @@ from pathlib import Path
 from struct import pack, unpack
 
 import pefile
-
 import yara
+
 from cape_parsers.utils.lznt1 import lznt1
 
 log = logging.getLogger(__name__)
@@ -555,5 +555,8 @@ def extract_config(data):
             "Injection method": injection_method,
         }
     }
+
+    config["cryptokey"] = config["raw"]["Rabbit key"]
+    config["cryptokey_type"] = "Rabbit"
 
     return config

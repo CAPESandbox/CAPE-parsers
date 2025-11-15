@@ -35,7 +35,8 @@ def extract_config(filebuf):
                 if n > 32:
                     break
             campaign, c2 = struct.unpack("I30s", bytes(dec))
-            config["CNCs"] = c2.split(b"\00", 1)[0].decode()
+            c2 = c2.split(b"\00", 1)[0].decode()
+            config["CNCs"] = f"http://{c2}"
             config["campaign"] = campaign
             return config
 

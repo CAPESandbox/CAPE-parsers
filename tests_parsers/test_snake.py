@@ -10,5 +10,5 @@ def test_snake():
         conf = extract_config(data.read())
         assert conf == {
             "raw": {"Type": "Telegram"},
-            "CNCs": "https://api.telegram.org/bot7952998151:AAFh98iY7kaOlHAR0qftD3ZcqGbQm0TXbBY/sendMessage?chat_id=5692813672",
+            "CNCs": ["https://api.telegram.org/bot7952998151:AAFh98iY7kaOlHAR0qftD3ZcqGbQm0TXbBY/sendMessage?chat_id=5692813672"],
         }

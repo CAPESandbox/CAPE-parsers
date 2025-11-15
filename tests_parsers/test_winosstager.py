@@ -1,5 +1,6 @@
 from cape_parsers.CAPE.community.WinosStager import extract_config
 
+
 def test_winosstager():
     with open(
         "tests/data/malware/ed8a86bb6d3c3d907984062e3bd3d0962aa1cb481f6aaf2e36ce084f92696f2c",
@@ -7,10 +8,9 @@ def test_winosstager():
     ) as data:
         conf = extract_config(data.read())
         assert conf == {
-            "CNCs": [
-                "tcp://150.5.145.84:443"
-            ],
-            "campaign_id": "default",
+            "CNCs": ["tcp://150.5.145.84:443"],
+            "campaign": "default",
+            "version": "1.0",
             "raw": {
                 "execution_delay_seconds": "1",
                 "communication_interval_seconds": "1",
@@ -21,6 +21,6 @@ def test_winosstager():
                 "anti_traffic_monitoring": "0",
                 "entrypoint": "0",
                 "process_daemon": "1",
-                "process_hollowing": "0"
-            }
+                "process_hollowing": "0",
+            },
         }

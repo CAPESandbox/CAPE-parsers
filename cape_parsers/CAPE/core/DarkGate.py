@@ -92,11 +92,14 @@ def decode(data):
 
 
 def extract_config(data):
+    config_extracted = False
     with suppress(pefile.PEFormatError):
         pe = pefile.PE(data=data, fast_load=True)
         for section in pe.sections:
             if b"CODE" in section.Name:
-                return decode(section.get_data())
+                config = decode(section.get_data())
+                config_extracted = True
+                break
 
     if b"1=Yes" in data or b"1=No" in data:
         config = {}
@@ -105,6 +108,32 @@ def extract_config(data):
                 config["CNCs"] = [x for x in item[2:].decode("utf-8").split("|") if x.strip() != ""]
             else:
                 config.update(parse_config(item, config_map_2))
+        config_extracted = True
+
+    if config_extracted:
+        # Map information to CAPE's format, if possible
+        if "c2_port" in config["raw"] and "CNCs" in config:
+            # We're making the assumpton the same port is used for all CNCs
+            config["CNCs"] = [f"{url}:{config['raw']['c2_port']}" for url in config["CNCs"]]
+
+        if "internal_mutex" in config["raw"]:
+            # Bring mutex to top level
+            config["mutex"] = config["raw"]["internal_mutex"]
+
+        if "crypto_key" in config["raw"]:
+            # Bring crypto_key to top level
+            config["cryptokey"] = config["raw"]["crypto_key"]
+
+        if "campaign_id" in config["raw"]:
+            # Bring campaign_id to top level
+            config["campaign"] = config["raw"]["campaign_id"]
+
+        if "xor_key" in config["raw"]:
+            # Bring xor_key to top level
+            config["cryptokey"] = config["raw"]["xor_key"]
+            config["cruptokey_type"] = "XOR"
+
+
         return config
 
     return ""
