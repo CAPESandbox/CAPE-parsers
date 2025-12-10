@@ -28,6 +28,34 @@ rule Amadey_Key_String
 }
 """
 
+RULE_SOURCE_KEY_X64 = """
+rule Amadey_Key_String_X64
+{
+    meta:
+        author = "Matthieu Gras"
+        description = "Find decryption key in Amadey (64bit)."
+    strings:
+        $opcodes = {
+            /* sub rsp, imm8  */
+            48 83 EC ??
+
+            /* mov r8d, imm32 */
+            41 B8 ?? ?? ?? ??
+
+            /* lea rdx, [rip+disp32] */
+            48 8D 15 ?? ?? ?? ??
+
+            /* lea rcx, [rip+disp32] */
+            48 8D 0D ?? ?? ?? ??
+
+            /* call rel32 */
+            E8 ?? ?? ?? ??
+        }
+    condition:
+        $opcodes
+}
+"""
+
 RULE_SOURCE_ENCODED_STRINGS = """
 rule Amadey_Encoded_Strings
 {
@@ -50,6 +78,43 @@ rule Amadey_Encoded_Strings
 }
 """
 
+RULE_SOURCE_ENCODED_STRINGS_X64 = """
+rule Amadey_Encoded_Strings_X64
+{
+    meta:
+        author = "Matthieu Gras"
+        description = "Find encoded strings in Amadey (64bit)."
+    strings:
+        $opcodes = {
+            /* sub rsp, imm8 */
+            48 83 EC ??
+
+            /* mov r8d, imm32 */
+            41 B8 ?? ?? ?? ??
+
+            /* lea rdx, [rip+disp32] */
+            48 8D 15 ?? ?? ?? ??
+
+            /* lea rcx, [rip+disp32] */
+            48 8D 0D ?? ?? ?? ??
+
+            /* call rel32  */
+            E8 ?? ?? ?? ??
+
+            /* lea rcx, [rip+disp32] */
+            48 8D 0D ?? ?? ?? ??
+
+            /* add rsp, imm8 */
+            48 83 C4 ??
+
+            /* jmp rel32 */
+            E9 ?? ?? ?? ??
+        }
+    condition:
+        $opcodes
+}
+"""
+
 
 def contains_non_printable(byte_array):
     for byte in byte_array:
@@ -68,14 +133,14 @@ def yara_scan_generator(raw_data, rule_source):
                 yield instance.offset, block.identifier
 
 
-def get_keys(pe, data):
-    image_base = pe.OPTIONAL_HEADER.ImageBase
+def get_keys(pe, data, is_64bit=False):
     keys = []
-    for offset, _ in yara_scan_generator(data, RULE_SOURCE_KEY):
+    rule_source = RULE_SOURCE_KEY_X64 if is_64bit else RULE_SOURCE_KEY
+
+    for offset, _ in yara_scan_generator(data, rule_source):
         try:
-            key_string_rva = struct.unpack('i', data[offset + 3 : offset + 7])[0]
-            key_string_dword_offset = pe.get_offset_from_rva(key_string_rva - image_base)
-            key_string = pe.get_string_from_data(key_string_dword_offset, data)
+            key_string_offset = get_rip_relative_address(pe, data, offset, is_64bit)
+            key_string = pe.get_string_from_data(key_string_offset, data)
 
             if b"=" not in key_string:
                 keys.append(key_string.decode())
@@ -88,19 +153,34 @@ def get_keys(pe, data):
 
     return []
 
+def get_rip_relative_address(pe, data, offset, is_64bit):
+    if is_64bit:
+        offset += 10
+        disp = struct.unpack('<i', data[offset + 3 : offset + 7])[0]
+        rip_rva = pe.get_rva_from_offset(offset + 7)
+        target_rva = rip_rva + disp
+        target_offset = pe.get_offset_from_rva(target_rva)
+    else:
+        rva = struct.unpack('i', data[offset + 3 : offset + 7])[0]
+        target_offset = pe.get_offset_from_rva(rva - pe.OPTIONAL_HEADER.ImageBase)
 
-def get_encoded_strings(pe, data):
+    return target_offset
+
+def get_encoded_strings(pe, data, is_64bit=False):
     encoded_strings = []
-    image_base = pe.OPTIONAL_HEADER.ImageBase
-    for offset, _ in yara_scan_generator(data, RULE_SOURCE_ENCODED_STRINGS):
+    rule_source = RULE_SOURCE_ENCODED_STRINGS_X64 if is_64bit else RULE_SOURCE_ENCODED_STRINGS
+
+    for offset, _ in yara_scan_generator(data, rule_source):
 
         try:
-            encoded_string_size = data[offset + 1]
-            encoded_string_rva = struct.unpack('i', data[offset + 3 : offset + 7])[0]
-            encoded_string_dword_offset = pe.get_offset_from_rva(encoded_string_rva - image_base)
-            encoded_string = pe.get_string_from_data(encoded_string_dword_offset, data)
+            if is_64bit:
+                encoded_string_size = struct.unpack('<I', data[offset + 6 : offset + 10])[0]
+            else:
+                encoded_string_size = data[offset + 1]
 
-            # Make sure the string matches length from operand
+            encoded_string_offset = get_rip_relative_address(pe, data, offset, is_64bit)
+            encoded_string = pe.get_string_from_data(encoded_string_offset, data)
+
             if encoded_string_size != len(encoded_string):
                 continue
 
@@ -147,13 +227,15 @@ def extract_config(data):
     pe = pefile.PE(data=data, fast_load=True)
     # image_base = pe.OPTIONAL_HEADER.ImageBase
 
-    keys = get_keys(pe, data)
+    is_64bit = pe.OPTIONAL_HEADER.Magic == pefile.OPTIONAL_HEADER_MAGIC_PE_PLUS
+
+    keys = get_keys(pe, data, is_64bit)
     if not keys:
         return {}
 
     decode_key = keys[0]
     rc4_key = keys[1]
-    encoded_strings = get_encoded_strings(pe, data)
+    encoded_strings = get_encoded_strings(pe, data, is_64bit)
 
     decoded_strings = []
     for encoded_string in encoded_strings:

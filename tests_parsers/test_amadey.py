@@ -22,3 +22,18 @@ def test_amadey():
                 "install_file": "Vlimvoi.exe",
             }
         }
+    with open("tests/data/malware/d7a366fa4d31c901ce3bcb6760d7bb5aa7cab49bb54d8c6551b3df14c8cf64e7", "rb") as data:
+        conf = extract_config(data.read())
+        assert conf == {
+            "CNCs": [
+                "http://91.92.243.129/0gjSy4hf3/index.php"
+            ],
+            "version": "5.70",
+            "cryptokey": "f936986d553273aef6eeaeef713ad28f",
+            "cryptokey_type": "RC4",
+            "campaign_id": "07072f",
+            "raw": {
+                "install_dir": "067640a009",
+                "install_file": "Yfgfwb.exe"
+            },
+        }
