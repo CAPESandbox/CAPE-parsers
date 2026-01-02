@@ -85,7 +85,8 @@ def decode_resource(rc_data, key_end, fname):
         enc_data = rc_data[:-RC4_KEY_LENGTH]
         rc4key = rc_data[-RC4_KEY_LENGTH:-4] + key_end
         dec_data = rc4(enc_data, rc4key)
-        open(fname, "wb").write(dec_data)
+        with open(fname, "wb") as f:
+            f.write(dec_data.encode("utf-8") if isinstance(dec_data, str) else dec_data)
     except Exception:
         return
     return dec_data

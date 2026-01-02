@@ -254,4 +254,5 @@ def extract_config(data):
 if __name__ == "__main__":
     import sys
 
-    print(extract_config(open(sys.argv[1], "rb").read()))
+    with open(sys.argv[1], "rb") as f:
+        print(extract_config(f.read()))

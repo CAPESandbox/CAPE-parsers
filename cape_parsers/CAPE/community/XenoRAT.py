@@ -27,5 +27,6 @@ def extract_config(data: bytes):
 
 
 if __name__ == "__main__":
-    data = open(sys.argv[1], "rb").read()
+    with open(sys.argv[1], "rb") as f:
+        data = f.read()
     print(extract_config(data))
