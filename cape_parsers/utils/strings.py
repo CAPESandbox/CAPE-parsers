@@ -59,6 +59,17 @@ def bytes2str(convert):
 
 
 def extract_strings(filepath: str = False, data: bytes = False, on_demand: bool = False, dedup: bool = False, minchars: int = 5):
+    """Extract ASCII and UTF-16LE strings from a file or byte string using YARA.
+
+    Args:
+        filepath: Path to the file to extract strings from.
+        data: Byte string to extract strings from. If filepath is provided, this is ignored.
+        dedup: If True, duplicate strings are removed.
+        minchars: Minimum length of strings to extract.
+
+    Returns:
+        A list of extracted strings.
+    """
     if minchars == 0:
         minchars = 5
 
