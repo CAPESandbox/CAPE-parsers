@@ -1,6 +1,8 @@
 # Copyright (C) 2010-2015 Cuckoo Foundation, Optiv, Inc. (brad.spengler@optiv.com)
 # This file is part of Cuckoo Sandbox - http://www.cuckoosandbox.org
 # See the file 'docs/LICENSE' for copying permission.
+import re
+import yara
 import logging
 from pathlib import Path
 
@@ -66,41 +68,73 @@ def bytes2str(convert):
     return convert
 
 
-def extract_strings(filepath: str = False, data: bytes = False, on_demand: bool = False, dedup: bool = False, minchars: int = 0):
-    """Extract strings from analyzed file.
-    @return: list of printable strings.
-    """
-
-    nulltermonly = False
+def extract_strings(filepath: str = False, data: bytes = False, on_demand: bool = False, dedup: bool = False, minchars: int = 5):
     if minchars == 0:
         minchars = 5
 
     if filepath:
         p = Path(filepath)
-        if not p.exists():
-            log.error("Sample file doesn't exist: %s", filepath)
-            return
-        try:
-            data = p.read_bytes()
-        except (IOError, OSError) as e:
-            log.error("Error reading file: %s", e)
-            return
+        if not p.exists(): return []
+        data = p.read_bytes()
 
-    if not data:
-        return
+    if not data or not isinstance(data, bytes):
+        return []
 
-    endlimit = b"8192" if not HAVE_RE2 else b""
-    if nulltermonly:
-        apat = b"([\x20-\x7e]{" + str(minchars).encode() + b"," + endlimit + b"})\x00"
-        upat = b"((?:[\x20-\x7e][\x00]){" + str(minchars).encode() + b"," + endlimit + b"})\x00\x00"
-    else:
-        apat = b"[\x20-\x7e]{" + str(minchars).encode() + b"," + endlimit + b"}"
-        upat = b"(?:[\x20-\x7e][\x00]){" + str(minchars).encode() + b"," + endlimit + b"}"
+    rule_source = r"""
+    rule GetStrings {
+        strings:
+            $s = /[\x20-\x7e]{""" + str(minchars) + r""",}/ ascii wide
+        condition:
+            $s
+    }
+    """
 
-    strings = [bytes2str(string) for string in re.findall(apat, data)]
-    strings.extend(str(ws.decode("utf-16le")) for ws in re.findall(upat, data))
+    try:
+        rule = yara.compile(source=rule_source)
+        matches = rule.match(data=data)
+    except yara.Error:
+        return []
+
+    all_instances = []
+    for match in matches:
+        for string_match in match.strings:
+            for instance in string_match.instances:
+                all_instances.append({
+                    'offset': instance.offset,
+                    'data': instance.matched_data,
+                    'length': len(instance.matched_data)
+                })
+
+    all_instances.sort(key=lambda x: x['offset'])
+
+    strings = []
+    last_end_offset = -1
+
+    for inst in all_instances:
+        current_start = inst['offset']
+        current_end = current_start + inst['length']
+
+        if current_start < last_end_offset:
+            continue
+
+        val = inst['data']
+        decoded = None
+
+        if b"\x00" in val:
+            try:
+                decoded = val.decode("utf-16le")
+            except UnicodeDecodeError:
+                pass
+
+        if not decoded:
+            decoded = val.decode("ascii", errors="ignore")
+
+        if decoded:
+            strings.append(decoded)
+            last_end_offset = current_end
 
     if dedup:
         strings = list(set(strings))
 
     return strings
+
