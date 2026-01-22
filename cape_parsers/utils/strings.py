@@ -5,15 +5,6 @@ import yara
 import logging
 from pathlib import Path
 
-try:
-    import re2 as re
-
-    HAVE_RE2 = True
-except ImportError:
-    import re
-
-    HAVE_RE2 = False
-
 
 log = logging.getLogger(__name__)
 
