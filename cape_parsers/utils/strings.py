@@ -1,7 +1,6 @@
 # Copyright (C) 2010-2015 Cuckoo Foundation, Optiv, Inc. (brad.spengler@optiv.com)
 # This file is part of Cuckoo Sandbox - http://www.cuckoosandbox.org
 # See the file 'docs/LICENSE' for copying permission.
-import re
 import yara
 import logging
 from pathlib import Path
@@ -74,7 +73,8 @@ def extract_strings(filepath: str = False, data: bytes = False, on_demand: bool 
 
     if filepath:
         p = Path(filepath)
-        if not p.exists(): return []
+        if not p.exists():
+            return []
         data = p.read_bytes()
 
     if not data or not isinstance(data, bytes):
