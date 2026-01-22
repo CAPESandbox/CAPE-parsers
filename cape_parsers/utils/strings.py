@@ -58,7 +58,7 @@ def bytes2str(convert):
     return convert
 
 
-def extract_strings(filepath: str = False, data: bytes = False, on_demand: bool = False, dedup: bool = False, minchars: int = 5):
+def extract_strings(filepath: str = False, data: bytes = False, dedup: bool = False, minchars: int = 5):
     """Extract ASCII and UTF-16LE strings from a file or byte string using YARA.
 
     Args:
