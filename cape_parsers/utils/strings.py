@@ -83,7 +83,7 @@ def extract_strings(filepath: str = False, data: bytes = False, on_demand: bool 
     rule_source = r"""
     rule GetStrings {
         strings:
-            $s = /[\x20-\x7e]{""" + str(minchars) + r""",}/ ascii wide
+            $s = /[\x20-\x7e]{""" + str(int(minchars)) + r""",}/ ascii wide
         condition:
             $s
     }
