@@ -97,15 +97,16 @@ def extract_strings(filepath: str = False, data: bytes = False, on_demand: bool 
     except yara.Error:
         return []
 
-    all_instances = []
-    for match in matches:
-        for string_match in match.strings:
-            for instance in string_match.instances:
-                all_instances.append({
-                    'offset': instance.offset,
-                    'data': instance.matched_data,
-                    'length': len(instance.matched_data)
-                })
+    all_instances = [
+        {
+            'offset': instance.offset,
+            'data': instance.matched_data,
+            'length': len(instance.matched_data),
+        }
+        for match in matches
+        for string_match in match.strings
+        for instance in string_match.instances
+    ]
 
     all_instances.sort(key=lambda x: x['offset'])
 
