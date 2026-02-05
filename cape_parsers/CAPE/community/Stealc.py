@@ -150,6 +150,9 @@ def extract_config(data):
     if botnet_id:
         config_dict.setdefault("botnet", botnet_id)
 
+    if "CNCs" not in config_dict:
+        return {}
+    
     return config_dict
 
 
