@@ -152,7 +152,7 @@ def extract_config(data):
 
     if "CNCs" not in config_dict:
         return {}
-    
+
     return config_dict
 
 
