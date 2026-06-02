@@ -42,10 +42,7 @@ Blob layout (offsets from blob start):
                 +0x142  user_agent  len @ +0x242
 """
 
-import argparse
 import itertools
-import json
-import os
 import re
 import sys
 
