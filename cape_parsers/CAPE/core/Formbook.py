@@ -6,9 +6,9 @@ def extract_config(data):
     except Exception:
         return
     if lines[0].startswith("POST"):
-        while lines[i] != "dat=":
+        while not lines[i].rstrip().endswith("dat="):
             i += 1
-        if lines[i] == "dat=":
+        if lines[i].rstrip().endswith("dat="):
             i += 1
     elif "www." not in lines[0]:
         return
