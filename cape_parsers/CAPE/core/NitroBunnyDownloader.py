@@ -160,6 +160,29 @@ def _read_utf16(data, off, nbytes):
     return data[off:off + nbytes].decode("utf-16le", errors="replace").rstrip("\x00"), off + nbytes
 
 
+def _read_utf16_list(data, off, count):
+    items = []
+    for _ in range(count):
+        ln, off = struct.unpack_from("<Q", data, off)[0], off + 8
+        s, off = _read_utf16(data, off, ln)
+        items.append(s)
+    return items, off
+
+
+def make_endpoints(cncs: list[str], port: int, uris: list[str]) -> list[str]:
+    endpoints = []
+    schema = {80: "http", 443: "https"}.get(port, "tcp")
+    for cnc in cncs:
+        base_url = f"{schema}://{cnc}"
+        if port not in (80, 443):
+            base_url += f":{port}"
+
+        for uri in uris:
+            endpoints.append(f"{base_url}/{uri.lstrip('/')}")
+
+    return endpoints
+
+
 def parse_utf16_schema(data):
     """Original layout: port, n_c2, {qword len + UTF-16LE}, UA, headers, uris."""
     cfg, raw = {}, {}
@@ -167,31 +190,22 @@ def parse_utf16_schema(data):
     port, off = struct.unpack_from("<I", data, off)[0], off + 4
     if port not in (80, 443, 8080, 8443):
         return None
-    cfg["port"] = port
     num, off = struct.unpack_from("<I", data, off)[0], off + 4
     if not 1 <= num <= 16:
         return None
-    cncs = []
-    for _ in range(num):
-        ln, off = struct.unpack_from("<Q", data, off)[0], off + 8
-        s, off = _read_utf16(data, off, ln)
-        cncs.append(s)
-    cfg["CNCs"] = cncs
+    cncs, off = _read_utf16_list(data, off, num)
     ln, off = struct.unpack_from("<Q", data, off)[0], off + 8
-    raw["user_agent"], off = _read_utf16(data, off, ln)
-    for label in ("http_header_items", "uri_list"):
-        num, off = struct.unpack_from("<I", data, off)[0], off + 4
-        items = []
-        for _ in range(num):
-            ln, off = struct.unpack_from("<Q", data, off)[0], off + 8
-            s, off = _read_utf16(data, off, ln)
-            items.append(s)
-        raw[label] = items
+    cfg["user_agent"], off = _read_utf16(data, off, ln)
+    num, off = struct.unpack_from("<I", data, off)[0], off + 4
+    raw["http_header_items"], off = _read_utf16_list(data, off, num)
+    num, off = struct.unpack_from("<I", data, off)[0], off + 4
+    uris, off = _read_utf16_list(data, off, num)
+    # port and the URI list are folded into the endpoints, so neither is kept separately
+    cfg["CNCs"] = make_endpoints(cncs, port, uris)
     # NB: these two are NOT the layout-B sleep/jitter pair - observed values are
     # large and random-looking (e.g. 2261840800), so they are left unnamed.
     raw["unknown_1"], off = struct.unpack_from("<I", data, off)[0], off + 4
     raw["unknown_2"], off = struct.unpack_from("<I", data, off)[0], off + 4
-    cfg["user_agent"] = raw["user_agent"]
     cfg["raw"] = raw
     return cfg
 
@@ -322,8 +336,14 @@ def parse_profile_schema(data):
                     out.append(v)
         return out
 
-    cfg = {"CNCs": flat("hosts")}
-    cfg["port"] = profiles[0]["port"]
+    # built per profile: hosts, port and URIs only pair up within the same profile
+    endpoints = []
+    for p in profiles:
+        for endpoint in make_endpoints(p["hosts"], p["port"], p["uris"]):
+            if endpoint not in endpoints:
+                endpoints.append(endpoint)
+
+    cfg = {"CNCs": endpoints}
     uas = flat("user_agents")
     cfg["user_agent"] = uas[0] if uas else None
     cfg["sleep"] = sleep_base
@@ -335,9 +355,8 @@ def parse_profile_schema(data):
         "sleep_ms": sleep_base * SLEEP_SCALE,
         "profile_count": nprof,
         "profiles": profiles,
-        # flattened views, kept for compatibility with the layout-A output
+        # flattened views; the URI list is omitted, it is folded into the endpoints
         "user_agents": uas,
-        "uri_list": flat("uris"),
         "http_header_items": flat("headers"),
         "token_carriers": flat("token_carriers"),
         "field_names": flat("field_names"),
