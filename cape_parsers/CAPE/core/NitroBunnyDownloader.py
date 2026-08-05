@@ -98,6 +98,8 @@ yara_rules = yara.compile(source=yara_rule)
 
 RC4_KEY_LEN = 16
 
+CNC_SCHEMAS = {443: "https", 8443: "https"}
+
 # (lea rdx offset, mov r8d imm32 offset) within each fixed 29-byte $config match
 CONFIG_OFFSETS = {
     "$config1": (11, 7),  # call | 41 B8 <size> | 48 8D 15 <blob> | 48 89 C1  | 4? 89 ?? | call
@@ -169,15 +171,17 @@ def _read_utf16_list(data, off, count):
     return items, off
 
 
-def make_endpoints(cncs: list[str], port: int, uris: list[str]) -> list[str]:
+def make_endpoints(cncs: list[str], port: int | None, uris: list[str]) -> list[str]:
     endpoints = []
-    schema = {80: "http", 443: "https"}.get(port, "tcp")
+    # HTTP is the only protocol this family speaks, so it is the default for an unknown port
+    schema = CNC_SCHEMAS.get(port, "http")
     for cnc in cncs:
         base_url = f"{schema}://{cnc}"
-        if port not in (80, 443):
+        if port and port not in (80, 443):
             base_url += f":{port}"
 
-        for uri in uris:
+        # with no URIs the host still has to be emitted, as a bare "<schema>://<host>/"
+        for uri in uris or [""]:
             endpoints.append(f"{base_url}/{uri.lstrip('/')}")
 
     return endpoints
@@ -402,10 +406,11 @@ def parse_ascii_schema(data):
 
     if not cncs:
         return None
-    cfg["CNCs"] = cncs
     ports = [v for _, v in fields if v in (80, 443, 8080, 8443)]
-    cfg["port"] = ports[0] if ports else None
+    port = ports[0] if ports else None
+    cfg["CNCs"] = make_endpoints(cncs, port, uris)
     cfg["user_agent"] = uas[0] if uas else None
+    raw["port"] = port
     raw["user_agents"] = uas
     raw["uri_list"] = uris
     raw["http_header_items"] = headers
