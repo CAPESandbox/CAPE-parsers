@@ -28,5 +28,6 @@ def test_nitrogenbunnydownloader():
                     "Cookie: sessionId=321116abbcdefXXxc8qRVfk; expires=600"],
                 "unknown_1": 2261840800,
                 "unknown_2": 1765860472,
+                "blob_size": 1548,
             }
         }

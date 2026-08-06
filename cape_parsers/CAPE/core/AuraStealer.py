@@ -16,6 +16,7 @@ from Cryptodome.Util.Padding import unpad
 HEADER_FORMAT = "<32s16sII"
 HEADER_SIZE = struct.calcsize(HEADER_FORMAT)  # This will be 32 + 16 + 4 + 4 = 56 bytes
 
+
 def parse_blob(data: bytes):
     """
     Parse the blob according to the scheme:
@@ -26,7 +27,7 @@ def parse_blob(data: bytes):
     """
     aes_key, iv, dword1, dword2 = struct.unpack_from(HEADER_FORMAT, data, 0)
     ciphertext_size = dword1 ^ dword2
-    cipher_data = data[HEADER_SIZE : HEADER_SIZE + ciphertext_size]
+    cipher_data = data[HEADER_SIZE: HEADER_SIZE + ciphertext_size]
     return aes_key, iv, cipher_data
 
 
@@ -40,32 +41,36 @@ def decrypt(data: bytes) -> Tuple[bytes, bytes, bytes]:
 def extract_config(data: bytes) -> Dict[str, Any]:
     cfg: Dict[str, Any] = {}
     plaintext = b""
-    data_section = None
 
-    pe = pefile.PE(data=data, fast_load=True)
-    for s in pe.sections:
-        name = s.Name.decode("utf-8", errors="ignore").rstrip("\x00")
-        if name in ("UPX1", ".data"):
-            data_section = s
-            break
+    try:
+        pe = pefile.PE(data=data, fast_load=True)
+        data_sections = [s for s in pe.sections if b".data" in s.Name]
+        if data_sections:
+            scan_data = data_sections[0].get_data()
+        else:
+            scan_data = data
+    except Exception:
+        # Fallback to full buffer scan for raw memory dumps
+        scan_data = data
 
-    if data_section is None:
-        return cfg
+    header_size = 56
+    min_cipher_size = 100
+    max_cipher_size = 50000
 
-    data = data_section.get_data()
-    block_size = 4096
-    zeros = b"\x00" * block_size
-    offset = data.find(zeros)
-    if offset == -1:
-        return cfg
+    for offset in range(len(scan_data) - header_size):
+        dword1, dword2 = struct.unpack_from("<II", scan_data, offset + 48)
+        cipher_size = dword1 ^ dword2
 
-    while offset > 0:
-        with suppress(Exception):
-            aes_key, iv, plaintext = decrypt(data[offset : offset + block_size])
-            if plaintext and b"conf" in plaintext:
-                break
+        # Fast validation: Check bounds and ensure AES block alignment
+        if min_cipher_size <= cipher_size <= max_cipher_size and cipher_size % 16 == 0:
+            if offset + header_size + cipher_size <= len(scan_data):
+                exact_blob = scan_data[offset: offset + header_size + cipher_size]
 
-        offset -= 1
+                with suppress(Exception):
+                    aes_key, iv, ptext = decrypt(exact_blob)
+                    if ptext and b"conf" in ptext:
+                        plaintext = ptext
+                        break
 
     if plaintext:
         try:
