@@ -3,7 +3,7 @@ from contextlib import suppress
 try:
     from cape_parsers.utils.strings import extract_strings
 except ImportError as e:
-    print(f"Problem to import extract_strings: {e}")
+    print(f"Problem importing extract_strings: {e}")
 
 
 def extract_config(data: bytes):
@@ -12,7 +12,7 @@ def extract_config(data: bytes):
     is_c2_found = False
     with suppress(Exception):
         if data[:2] == b"MZ":
-            lines = extract_strings(data=data, on_demand=True, minchars=3)
+            lines = extract_strings(data=data, minchars=3)
             if not lines:
                 return
         else:
