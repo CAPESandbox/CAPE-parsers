@@ -456,7 +456,11 @@ def extract_config(filebuf):
                             config = parse_config(dec_bytes)
                         elif str(entry.name) == "311":
                             dec_bytes = decrypt_data(res_data)
-                            controllers = parse_binary_c2(dec_bytes)
+                            # Old-format (pre Nov'20) Qakbot stores C2 list as ASCII "IP;flag;port\r\n"
+                            if dec_bytes and b";" in dec_bytes[:32] and b"\r\n" in dec_bytes[:64]:
+                                controllers = parse_controllers(dec_bytes)
+                            else:
+                                controllers = parse_binary_c2(dec_bytes)
                         elif str(entry.name) in ("118", "3719"):
                             dec_bytes = decrypt_data2(res_data)
                             controllers = parse_binary_c2_2(dec_bytes)
