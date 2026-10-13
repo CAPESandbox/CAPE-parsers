@@ -1,8 +1,14 @@
+import os
+import pytest
+
 from cape_parsers.CAPE.core.DocConnect import extract_config
 
+SAMPLE_PATH = "tests/data/malware/162c0d3e671ddf4f7f3ae5681da5272111eab6588bc53843cc604fc386634594"
 
+
+@pytest.mark.skipif(not os.path.exists(SAMPLE_PATH), reason="Missed file")
 def test_docconnect_162c0d3e671ddf4f7f3ae5681da5272111eab6588bc53843cc604fc386634594():
-    with open("tests/data/malware/162c0d3e671ddf4f7f3ae5681da5272111eab6588bc53843cc604fc386634594", "rb") as data:
+    with open(SAMPLE_PATH, "rb") as data:
         conf = extract_config(data.read())
         assert conf == {
             "CNCs": [
