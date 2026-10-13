@@ -1,4 +1,4 @@
-from cape_parsers.CAPE.community.HijackLoader import extract_config
+from cape_parsers.CAPE.core.HijackLoader import extract_config
 
 
 def test_hijackloader():
