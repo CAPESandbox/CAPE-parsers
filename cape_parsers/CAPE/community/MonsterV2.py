@@ -1,5 +1,5 @@
 import hashlib
-from Crypto.Cipher import ChaCha20_Poly1305
+from Cryptodome.Cipher import ChaCha20_Poly1305
 from contextlib import suppress
 import zlib
 import struct
