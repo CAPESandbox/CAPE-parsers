@@ -17,9 +17,9 @@ def extract_config(data):
             return
         for line in data.decode().split("\n"):
             if _is_ip(line) and line not in config_dict.get("CNCs", []):
-                config_dict["CNCs"].append(line)
+                config_dict.setdefault("CNCs", []).append(line)
             elif line and "\\" in line:
                 config_dict.setdefault("Timestamp path", []).append(line)
-            elif "." in line and "=" not in line and line not in config_dict["CNCs"]:
+            elif "." in line and "=" not in line and line not in config_dict.get("CNCs", []):
                 config_dict.setdefault("raw", {}).setdefault("Dummy domain", []).append(line)
         return config_dict

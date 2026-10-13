@@ -2,3 +2,9 @@
 */.DS_Store
 *.pyc
 dist/*
+GEMINI.md
+.idea
+.github
+.claude
+.pytest_cache
+.ruff_cache

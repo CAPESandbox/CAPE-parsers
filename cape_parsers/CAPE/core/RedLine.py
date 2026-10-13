@@ -89,7 +89,7 @@ def extract_config(data):
     patterns = [pattern, pattern2, pattern3, pattern4, pattern5, pattern6]
     key = c2 = botnet = base_location = None
 
-    user_strings = extract_strings(data=data, on_demand=True)
+    user_strings = extract_strings(data=data)
     if not user_strings:
         user_strings = dotnet_user_strings(data=data)
     if not user_strings:

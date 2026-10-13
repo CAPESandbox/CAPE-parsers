@@ -62,9 +62,9 @@ def parse_http_config(rc4_key: bytes, data: bytes) -> dict:
     output = {"raw": config}
 
     # Map some fields to CAPE's output format, where possible
-    output['cryptokey'] = config['cryptokey']
-    output['cryptokey_type'] = config['cryptokey_type']
-    output['user_agent'] = config['user_agent']
+    output['cryptokey'] = config.pop('cryptokey')
+    output['cryptokey_type'] = config.pop('cryptokey_type')
+    output['user_agent'] = config.pop('user_agent')
     output['CNCs'] = [f"{'https' if config['use_ssl'] else 'http'}://{server}:{ports[i]}{config['uri']}"
                       for i, server in enumerate(servers)]
 

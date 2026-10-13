@@ -151,7 +151,7 @@ def decoder(data):
                 temp = unpad(temp, 8)
                 if not temp.endswith(b".php"):
                     continue
-                urls.append("http://" + temp.decod())
+                urls.append("http://" + temp.decode())
     return urls
 
 
