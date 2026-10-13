@@ -18,15 +18,16 @@ jobs:
         with:
           python-version: ${{ inputs.python-version }}
       - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.local/bin" >> $GITHUB_PATH && echo "$HOME/.cargo/bin" >> $GITHUB_PATH
       - uses: actions/cache@v4
         id: cache-uv-venv
         with:
           path: .venv
-          key: ${{ runner.os }}-python-${{ inputs.python-version }}-uv-${{ hashFiles('poetry.lock') }}
+          key: ${{ runner.os }}-python-${{ inputs.python-version }}-uv-v2-${{ hashFiles('poetry.lock', 'requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-python-${{ inputs.python-version }}-uv-
+            ${{ runner.os }}-python-${{ inputs.python-version }}-uv-v2-
       - if: steps.cache-uv-venv.outputs.cache-hit != 'true'
         run: |
           uv venv --python ${{ inputs.python-version }}
           uv pip sync --all-extras pyproject.toml
+          uv pip install pytest pytest-pretty pytest-cov pytest-mock pytest-asyncio pytest-xdist pytest-freezer tenacity httpretty func-timeout
