@@ -111,26 +111,27 @@ def extract_config(data):
         config_extracted = True
 
     if config_extracted:
+        raw_config = config.get("raw", {})
         # Map information to CAPE's format, if possible
-        if "c2_port" in config["raw"] and "CNCs" in config:
+        if "c2_port" in raw_config and "CNCs" in config:
             # We're making the assumpton the same port is used for all CNCs
-            config["CNCs"] = [f"{url}:{config['raw']['c2_port']}" for url in config["CNCs"]]
+            config["CNCs"] = [f"{url}:{raw_config['c2_port']}" for url in config["CNCs"]]
 
-        if "internal_mutex" in config["raw"]:
+        if "internal_mutex" in raw_config:
             # Bring mutex to top level
-            config["mutex"] = config["raw"]["internal_mutex"]
+            config["mutex"] = raw_config["internal_mutex"]
 
-        if "crypto_key" in config["raw"]:
+        if "crypto_key" in raw_config:
             # Bring crypto_key to top level
-            config["cryptokey"] = config["raw"]["crypto_key"]
+            config["cryptokey"] = raw_config["crypto_key"]
 
-        if "campaign_id" in config["raw"]:
+        if "campaign_id" in raw_config:
             # Bring campaign_id to top level
-            config["campaign"] = config["raw"]["campaign_id"]
+            config["campaign"] = raw_config["campaign_id"]
 
-        if "xor_key" in config["raw"]:
+        if "xor_key" in raw_config:
             # Bring xor_key to top level
-            config["cryptokey"] = config["raw"]["xor_key"]
+            config["cryptokey"] = raw_config["xor_key"]
             config["cruptokey_type"] = "XOR"
 
 

@@ -207,9 +207,11 @@ def extract_config(filebuf):
                     v = v.decode("utf16").strip("\00") if isinstance(v, bytes) else v
                 if isinstance(v, bytes):
                     with suppress(Exception):
-                        v = v.decoed()
+                        v = v.decode()
                 config.setdefault("raw", {})[k] = v
 
+    except pefile.PEFormatError as e:
+        logger.debug("PEFormatError: %s", str(e))
     except Exception as e:
         logger.error("Caught an exception: %s", str(e))
 

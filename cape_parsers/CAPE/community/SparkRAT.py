@@ -46,7 +46,7 @@ def extract_config(data):
     config_buf = extract_data_before_string(data, search_string, offset=config_buf_size)
 
     if len(config_buf) == 0:
-        log.error("Configuration is not found.")
+        log.debug("Configuration is not found.")
         return {}
 
     if config_buf == b"\x19" * config_buf_size:
