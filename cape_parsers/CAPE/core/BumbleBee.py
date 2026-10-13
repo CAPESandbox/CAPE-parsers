@@ -62,6 +62,8 @@ def extract_config_data(data, pe, config_match):
     The LEA ins are using relative addressing. Referenced data is relative to the address of the NEXT ins.
     This is inefficient but I'm bad at Python, okay?
     """
+    if not config_match:
+        return False, False, False
     try:
         # Get campaign id ciphertext
         campaign_id_rva = pe.get_rva_from_offset(config_match.start() + int(len(config_match.group("campaign_id_ins"))))
@@ -143,6 +145,8 @@ def extract_2024(pe, filebuf):
     key_offset = pe.get_dword_from_offset(rc4key_init_offset + 57)
     key_rva = pe.get_rva_from_offset(rc4key_init_offset + 61) + key_offset
     key = pe.get_string_at_rva(key_rva)
+    if not isinstance(key, (bytes, bytearray)) or not (1 <= len(key) <= 256):
+        return
 
     botid = ""
     botid_offset = pe.get_dword_from_offset(botid_init_offset + 51)
@@ -150,7 +154,7 @@ def extract_2024(pe, filebuf):
     botid_len_offset = pe.get_dword_from_offset(botidlgt_init_offset + 31)
     botid_data = pe.get_data(botid_rva)[:botid_len_offset]
     with suppress(Exception):
-        botid = ARC4.new(key).decrypt(botid_data).split(b"\x00")[0].decode()
+        botid = ARC4.new(key).decrypt(botid_data).split(b"\x00")[0].decode(errors="replace")
 
     port = ""
     port_offset = pe.get_dword_from_offset(port_init_offset + 23)
@@ -158,7 +162,7 @@ def extract_2024(pe, filebuf):
     port_len_offset = pe.get_dword_from_offset(botidlgt_init_offset + 4)
     port_data = pe.get_data(port_rva)[:port_len_offset]
     with suppress(Exception):
-        port = ARC4.new(key).decrypt(port_data).split(b"\x00")[0].decode()
+        port = ARC4.new(key).decrypt(port_data).split(b"\x00")[0].decode(errors="replace")
 
     dgaseed_offset = pe.get_dword_from_offset(dga1_init_offset + 15)
     dgaseed_rva = pe.get_rva_from_offset(dga1_init_offset + 19) + dgaseed_offset
@@ -174,16 +178,17 @@ def extract_2024(pe, filebuf):
 
     tld_offset = pe.get_dword_from_offset(dga2_init_offset + 37)
     tld_rva = pe.get_rva_from_offset(dga2_init_offset + 41) + tld_offset
-    tld_data = pe.get_string_at_rva(tld_rva).decode()
+    tld_raw = pe.get_string_at_rva(tld_rva)
+    tld_data = tld_raw.decode(errors="replace") if tld_raw else ""
 
     config = {
         "dga_seed": str(int(dgaseed_data)),
-        "cryptokey": key.decode(),
+        "cryptokey": key.decode(errors="replace"),
         "cryptokey_type": "RC4",
         "raw": {
             "TLD": tld_data,
-            "Domain length": domainlen_data.decode(),
-            "Number DGA domains": numdga_data.decode(),
+            "Domain length": domainlen_data.decode(errors="replace") if domainlen_data else "",
+            "Number DGA domains": numdga_data.decode(errors="replace") if numdga_data else "",
         },
     }
     if port:
@@ -213,35 +218,36 @@ def extract_config(data):
             re.DOTALL,
         )
         # Extract Key
+        key = None
         key_match = list(key_regex.finditer(data))
         if len(key_match) > 1:
             for index, match in enumerate(key_match):
-                key = extract_key_data(data, pe, match)
-                if not key:
+                extracted = extract_key_data(data, pe, match)
+                if not extracted:
                     continue
                 if index == 0:
-                    cfg["botnet"] = key.decode()
+                    cfg["botnet"] = extracted.decode(errors="replace")
                 elif index == 1:
-                    cfg["campaign"] = key.decode()
+                    cfg["campaign"] = extracted.decode(errors="replace")
                 elif index == 2:
-                    cfg.setdefault("raw", {})["Data"] = key.decode("latin-1")
+                    cfg.setdefault("raw", {})["Data"] = extracted.decode("latin-1")
                 elif index == 3:
-                    cfg["CNCs"] = list(key.decode().split(","))
+                    cfg["CNCs"] = list(extracted.decode(errors="replace").split(","))
         elif len(key_match) == 1:
             key = extract_key_data(data, pe, key_match[0])
-            if not key:
+            if not isinstance(key, (bytes, bytearray)) or not (1 <= len(key) <= 256):
                 return cfg
-            cfg["cryptokey"] = key.decode()
+            cfg["cryptokey"] = key.decode(errors="replace")
             cfg["cryptokey_type"] = "RC4"
-        # Extract config ciphertext
-        config_match = regex.search(data)
-        campaign_id, botnet_id, c2s = extract_config_data(data, pe, config_match)
-        if campaign_id:
-            cfg["campaign"] = ARC4.new(key).decrypt(campaign_id).split(b"\x00")[0].decode()
-        if botnet_id:
-            cfg["botnet"] = ARC4.new(key).decrypt(botnet_id).split(b"\x00")[0].decode()
-        if c2s:
-            cfg["CNCs"] = list(ARC4.new(key).decrypt(c2s).split(b"\x00")[0].decode().split(","))
+            # Extract config ciphertext
+            config_match = regex.search(data)
+            campaign_id, botnet_id, c2s = extract_config_data(data, pe, config_match)
+            if campaign_id:
+                cfg["campaign"] = ARC4.new(key).decrypt(campaign_id).split(b"\x00")[0].decode(errors="replace")
+            if botnet_id:
+                cfg["botnet"] = ARC4.new(key).decrypt(botnet_id).split(b"\x00")[0].decode(errors="replace")
+            if c2s:
+                cfg["CNCs"] = list(ARC4.new(key).decrypt(c2s).split(b"\x00")[0].decode(errors="replace").split(","))
     except Exception as e:
         log.exception("This is broken: %s", str(e))
 
