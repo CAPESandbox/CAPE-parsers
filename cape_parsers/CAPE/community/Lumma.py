@@ -301,28 +301,31 @@ def extract_config(data):
     # Parse the latest version
     key = None
     nonce = None
-    for offset in yara_scan_generator(data, RULE_SOURCE_LUMMA_NEW_KEYS):
-        key_rva = struct.unpack("i", data[offset + 1 : offset + 5])[0]
-        key_offset = pe.get_offset_from_rva(key_rva - image_base)
-        key = data[key_offset : key_offset + 32]
-        nonce_rva = struct.unpack("i", data[offset + 20 : offset + 24])[0]
-        nonce_offset = pe.get_offset_from_rva(nonce_rva - image_base)
-        nonce = b"\x00\x00\x00\x00" + data[nonce_offset : nonce_offset + 8]
+    if pe and image_base is not None:
+        for offset in yara_scan_generator(data, RULE_SOURCE_LUMMA_NEW_KEYS):
+            with suppress(pefile.PEFormatError, struct.error):
+                key_rva = struct.unpack("i", data[offset + 1 : offset + 5])[0]
+                key_offset = pe.get_offset_from_rva(key_rva - image_base)
+                nonce_rva = struct.unpack("i", data[offset + 20 : offset + 24])[0]
+                nonce_offset = pe.get_offset_from_rva(nonce_rva - image_base)
+                key = data[key_offset : key_offset + 32]
+                nonce = b"\x00\x00\x00\x00" + data[nonce_offset : nonce_offset + 8]
 
     if key and nonce:
         for offset in yara_scan_generator(data, RULE_SOURCE_LUMMA_NEW_ENCRYPTED_C2):
-            encrypted_strings_rva = struct.unpack("i", data[offset + 5 : offset + 9])[0]
-            encrypted_strings_offset = pe.get_offset_from_rva(encrypted_strings_rva - image_base)
-            step_size = 0x80
-            counter = 2
-            for i in range(12):
-                encrypted_string = data[encrypted_strings_offset : encrypted_strings_offset + 40]
-                decoded_c2 = chacha20_xor(encrypted_string, key, nonce, counter).split(b"\x00", 1)[0]
-                if contains_non_printable(decoded_c2):
-                    break
-                config.setdefault("CNCs", []).append("https://" + decoded_c2.decode())
-                encrypted_strings_offset = encrypted_strings_offset + step_size
-                counter += 2
+            with suppress(pefile.PEFormatError, struct.error):
+                encrypted_strings_rva = struct.unpack("i", data[offset + 5 : offset + 9])[0]
+                encrypted_strings_offset = pe.get_offset_from_rva(encrypted_strings_rva - image_base)
+                step_size = 0x80
+                counter = 2
+                for i in range(12):
+                    encrypted_string = data[encrypted_strings_offset : encrypted_strings_offset + 40]
+                    decoded_c2 = chacha20_xor(encrypted_string, key, nonce, counter).split(b"\x00", 1)[0]
+                    if contains_non_printable(decoded_c2):
+                        break
+                    config.setdefault("CNCs", []).append("https://" + decoded_c2.decode())
+                    encrypted_strings_offset = encrypted_strings_offset + step_size
+                    counter += 2
 
         if config.get("CNCs"):
             # If found C2 servers try to find build ID
