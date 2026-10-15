@@ -44,7 +44,10 @@ def decrypt_string(encoded_string: str, key: str) -> str:
 
 
 def extract_config(data: bytes) -> dict:
-    pe = pefile.PE(data=data, fast_load=True)
+    try:
+        pe = pefile.PE(data=data, fast_load=True)
+    except pefile.PEFormatError:
+        return {}
     rdata_section = None
     for section in pe.sections:
         if b".rdata" in section.Name:
