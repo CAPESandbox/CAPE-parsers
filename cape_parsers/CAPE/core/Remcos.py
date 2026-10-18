@@ -177,10 +177,11 @@ def extract_config(filebuf):
             keylen = blob[0]
             key = blob[1 : keylen + 1]
             decrypted_data = ARC4.new(key).decrypt(blob[keylen + 1 :])
-            p_data = OrderedDict()
-            config["version"] = check_version(filebuf)
-
             configs = re.split(rb"\|\x1e\x1e\x1f\|", decrypted_data)
+            if len(configs) < 2:
+                return config
+
+            p_data = OrderedDict()
 
             for i, cont in enumerate(configs):
                 if cont in (b"\x00", b"\x01"):
@@ -199,6 +200,7 @@ def extract_config(filebuf):
                     host, port, password = cont.split(separator, 1)[0].split(b":")
                     config["CNCs"] = [f"tcp://{host.decode()}:{port.decode()}"]
                     p_data["Password"] = password.decode()
+                    config["version"] = check_version(filebuf)
                 else:
                     p_data[idx_list[i]] = cont
 
@@ -210,8 +212,8 @@ def extract_config(filebuf):
                         v = v.decode()
                 config.setdefault("raw", {})[k] = v
 
-    except pefile.PEFormatError as e:
-        logger.debug("PEFormatError: %s", str(e))
+    except (pefile.PEFormatError, UnicodeDecodeError) as e:
+        logger.debug("Parse error: %s", str(e))
     except Exception as e:
         logger.error("Caught an exception: %s", str(e))
 

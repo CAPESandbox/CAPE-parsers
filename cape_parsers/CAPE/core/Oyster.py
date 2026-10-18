@@ -226,6 +226,8 @@ def extract_config(filebuf):
 
                 config = {"CNCs": c2, 'version': dll_version, "raw": {"Strings": str_vals, }, }
                 return config
+            except pefile.PEFormatError as e:
+                log.debug("PEFormatError: %s", e)
             except Exception as e:
                 log.error("Error: %s", e)
 
