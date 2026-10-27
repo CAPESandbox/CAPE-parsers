@@ -29,7 +29,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt install yara
-          poetry run pip install yara-python
+          poetry run pip install yara-python yara-x
 
       - name: Run unit tests
-        run: poetry run pytest tests/test_yara.py -s --import-mode=append
+        run: poetry run pytest tests/test_yara_unit.py -s --import-mode=append

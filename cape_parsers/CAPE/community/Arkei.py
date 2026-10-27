@@ -1,6 +1,6 @@
 import struct
 import pefile
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 from contextlib import suppress
 
 # Hash = 69ba4e2995d6b11bb319d7373d150560ea295c02773fe5aa9c729bfd2c334e1e

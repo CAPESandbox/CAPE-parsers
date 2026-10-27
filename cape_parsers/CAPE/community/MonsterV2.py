@@ -4,7 +4,7 @@ from contextlib import suppress
 import zlib
 import struct
 import json
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 import pefile
 
 

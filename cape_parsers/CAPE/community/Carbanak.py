@@ -18,7 +18,7 @@ import re
 from contextlib import suppress
 
 import pefile
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)

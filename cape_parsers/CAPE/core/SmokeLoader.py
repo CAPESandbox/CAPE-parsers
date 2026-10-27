@@ -4,7 +4,7 @@ from contextlib import suppress
 
 from Cryptodome.Cipher import ARC4
 
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -87,7 +87,7 @@ def extract_config(filebuf):
                         break
                     delta = 8
                 if "$fetch_c2_32" in item.identifier:
-                    match_offset = (int(instance[0]) & 0xFFFF) + 12
+                    match_offset = (int(instance.offset) & 0xFFFF) + 12
                     try:
                         c2list_offset = (struct.unpack("<I", filebuf[match_offset : match_offset + 4])[0]) & 0xFFFF
                     except Exception:

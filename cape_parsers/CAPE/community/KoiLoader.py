@@ -5,7 +5,7 @@ from itertools import cycle
 
 import pefile
 
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 
 # Hash = b462e3235c7578450b2b56a8aff875a3d99d22f6970a01db3ba98f7ecb6b01a0
 

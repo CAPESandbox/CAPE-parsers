@@ -22,7 +22,7 @@ import socket
 import struct
 
 import pefile
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 from Cryptodome.Cipher import ARC4
 
 log = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ rule Zloader
     strings:
         $rc4_init = {31 [1-3] 66 C7 8? 00 01 00 00 00 00 90 90 [0-5] 8? [5-90] 00 01 00 00 [0-15] (74|75)}
         $decrypt_conf = {e8 ?? ?? ?? ?? e8 ?? ?? ?? ?? e8 ?? ?? ?? ?? e8 ?? ?? ?? ?? 68 ?? ?? ?? ?? 68 ?? ?? ?? ?? e8 ?? ?? ?? ?? 83 c4 08 e8 ?? ?? ?? ??}
-        $decrypt_conf_1 = {48 8d [5] [0-6] e8 [4] 48 [3-4] 48 [3-4] 48 [6] E8}
+        $decrypt_conf_1 = {48 8d [5-11] e8 [4] 48 [3-4] 48 [3-4] 48 [6] E8}
         $decrypt_conf_2 = {48 8d [5] 4? [5] e8 [4] 48 [3-4] 48 8d [5] E8 [4] 48}
         $decrypt_key_1 = {66 89 C2 4? 8D 0D [3] 00 4? B? FC 03 00 00 E8 [4] 4? 83 C4}
         $decrypt_key_2 = {48 8d 0d [3] 00 66 89 ?? 4? 89 F0 4? [2-5] E8 [4-5] 4? 83 C4}
@@ -53,10 +53,10 @@ rule Zloader2024
         description = "Zloader Payload"
         cape_type = "Zloader Payload"
     strings:
-        $conf_1 = {48 01 ?? 48 8D 15 [4] 41 B8 ?? 04 00 00 E8 [4] [0-5] C7 [1-2] 00 00 00 00}
-        $confkey_1 = {48 8D 15 [4] 48 89 ?? 49 89 ?? E8 [4] [0-5] C7 [1-2] 00 00 00 00}
-        $confkey_2 = {48 01 ?? 48 8D 15 [4] 41 B8 10 00 00 00 E8 [4] [0-5] C7 [1-2] 00 00 00 00 (48 8B|8B)}
-        $confkey_3 = {48 01 ?? 48 8D 15 [4] 41 B8 10 00 00 00 E8 [4] [0-5] C7 [1-2] 00 00 00 00 48 83 C4}
+        $conf_1 = {48 01 ?? 48 8D 15 [4] 41 B8 ?? 04 00 00 E8 [4-9] C7 [1-2] 00 00 00 00}
+        $confkey_1 = {48 8D 15 [4] 48 89 ?? 49 89 ?? E8 [4-9] C7 [1-2] 00 00 00 00}
+        $confkey_2 = {48 01 ?? 48 8D 15 [4] 41 B8 10 00 00 00 E8 [4-9] C7 [1-2] 00 00 00 00 (48 8B|8B)}
+        $confkey_3 = {48 01 ?? 48 8D 15 [4] 41 B8 10 00 00 00 E8 [4-9] C7 [1-2] 00 00 00 00 48 83 C4}
     condition:
         uint16(0) == 0x5A4D and $conf_1 and 2 of ($confkey_*)
 }

@@ -20,7 +20,7 @@
 import logging
 import struct
 
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 import pefile
 from Cryptodome.Cipher import ARC4
 

@@ -15,7 +15,7 @@
 DESCRIPTION = "Enfal configuration parser."
 AUTHOR = "kevoreilly"
 
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 
 rule_source = """
 rule Enfal

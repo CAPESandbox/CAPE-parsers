@@ -4,7 +4,7 @@ import re
 import struct
 from contextlib import suppress
 import pefile
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 
 
 RULE_SOURCE_BUILD_ID = """rule LummaBuildId

@@ -66,7 +66,7 @@ import re
 import struct
 
 import pefile
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 
 log = logging.getLogger(__name__)
 

@@ -1,6 +1,6 @@
 import struct
 import pefile
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 import ipaddress
 from contextlib import suppress
 
@@ -16,7 +16,7 @@ rule StealC
         author = "Yung Binary"
     strings:
         $decode_1 = {6A ?? 68 [4] 68 [4] E8}
-        $decode_2 = {6A ?? 68 [4] 68 [4] [0-5] E8}
+        $decode_2 = {6A ?? 68 [4] 68 [4-9] E8}
     condition:
         any of them
 }

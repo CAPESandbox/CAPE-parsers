@@ -1,5 +1,5 @@
 import base64
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 import pefile
 import json
 import struct

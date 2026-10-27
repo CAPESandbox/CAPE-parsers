@@ -1,7 +1,7 @@
 import base64
 import json
 import pefile
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 import struct
 from contextlib import suppress
 

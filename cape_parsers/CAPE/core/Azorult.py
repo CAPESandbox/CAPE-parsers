@@ -16,7 +16,7 @@ import struct
 import logging
 
 import pefile
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 
 DESCRIPTION = "Azorult configuration parser."
 AUTHOR = "kevoreilly"

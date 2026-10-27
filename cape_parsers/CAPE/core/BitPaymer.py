@@ -20,7 +20,7 @@ import string
 import pefile
 from Cryptodome.Cipher import ARC4
 
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 
 rule_source = """
 rule BitPaymer

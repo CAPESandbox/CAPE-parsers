@@ -20,7 +20,7 @@ from contextlib import suppress
 from typing import List
 
 import pefile
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 
 log = logging.getLogger(__name__)
 

@@ -1,7 +1,7 @@
 # Copyright (C) 2010-2015 Cuckoo Foundation, Optiv, Inc. (brad.spengler@optiv.com)
 # This file is part of Cuckoo Sandbox - http://www.cuckoosandbox.org
 # See the file 'docs/LICENSE' for copying permission.
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 import logging
 from pathlib import Path
 

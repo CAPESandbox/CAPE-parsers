@@ -1182,10 +1182,30 @@ files = [
     {file = "yara_python-4.5.2.tar.gz", hash = "sha256:9086a53c810c58740a5129f14d126b39b7ef61af00d91580c2efb654e2f742ce"},
 ]
 
+[[package]]
+name = "yara-x"
+version = "1.22.1"
+description = "Python bindings for YARA-X"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "yara_x-1.22.1-cp39-abi3-macosx_14_0_arm64.whl", hash = "sha256:729c82ef1e74d75f4fd31608cacaab83eac822733e9f2c814449308b38d035ca"},
+    {file = "yara_x-1.22.1-cp39-abi3-macosx_14_0_x86_64.whl", hash = "sha256:247299622c7d6248585ba23b501ee6ea660e84b7f5dab1af377e2078961b73a4"},
+    {file = "yara_x-1.22.1-cp39-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:8ec9a6706d4acf83b8045c1630d5a058180e59da361d38098d8e86ce3e8576b0"},
+    {file = "yara_x-1.22.1-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:5dcb9db77784f0ad62460506923031673e0aadc525c1a5d25e53965a7f91587f"},
+    {file = "yara_x-1.22.1-cp39-abi3-win_amd64.whl", hash = "sha256:55f26a02669cd0d6588aa03f7befbfb56d319cd23f340e0b8acdbac49261ca8f"},
+    {file = "yara_x-1.22.1-pp311-pypy311_pp80-macosx_14_0_arm64.whl", hash = "sha256:1bf476071c57ec0914b44e5be845c4cf77616d8bf39157d60150ac24f4ebe85b"},
+    {file = "yara_x-1.22.1-pp311-pypy311_pp80-macosx_14_0_x86_64.whl", hash = "sha256:bfc2c8e152d0ee89af61efd615070cec8648d791cb50556344f207de0ec8cbf6"},
+    {file = "yara_x-1.22.1-pp311-pypy311_pp80-manylinux_2_28_aarch64.whl", hash = "sha256:0c91b629199a4aaf3393efcd0229056844968990303a8a32b7f53cb5bff0776b"},
+    {file = "yara_x-1.22.1-pp311-pypy311_pp80-manylinux_2_28_x86_64.whl", hash = "sha256:ec2c2c05adea2f69ec5c9147c3d36b7d6e11932f89b4b1af8ecbed10978d243e"},
+    {file = "yara_x-1.22.1-pp311-pypy311_pp80-win_amd64.whl", hash = "sha256:b010d2577036d2b970c793e75587362f1dcbf785251b3897ed15e84bc1357159"},
+]
+
 [extras]
 maco = ["maco"]
 
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10, <4.0"
-content-hash = "34f6c016a3c933058dccfa3ccf186c417aeef7f5c931f83c32cc878fee4e7b95"
+content-hash = "48d3bbf52d29e8d12eb0df85221ccb2e7d92746810226709c048355645606990"

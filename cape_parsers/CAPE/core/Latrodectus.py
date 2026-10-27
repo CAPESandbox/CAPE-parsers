@@ -18,7 +18,7 @@ import re
 from contextlib import suppress
 
 import pefile
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 from Cryptodome.Cipher import AES
 from Cryptodome.Cipher.AES import MODE_CTR
 from Cryptodome.Util import Counter

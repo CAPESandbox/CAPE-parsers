@@ -16,7 +16,7 @@ from itertools import cycle
 
 import pefile
 
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 
 rule_source = """
 rule SquirrelWaffle

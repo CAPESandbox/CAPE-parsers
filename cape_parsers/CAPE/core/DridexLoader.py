@@ -19,7 +19,7 @@ from contextlib import suppress
 import pefile
 from Cryptodome.Cipher import ARC4
 
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 
 DESCRIPTION = "DridexDropper configuration parser."
 AUTHOR = "kevoreilly"

@@ -15,7 +15,7 @@ from pathlib import Path
 from struct import pack, unpack
 
 import pefile
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 
 from cape_parsers.utils.lznt1 import lznt1
 

@@ -15,7 +15,7 @@ import sys
 from contextlib import suppress
 
 import pefile
-import yara
+from cape_parsers.utils import yara_wrapper as yara
 from Cryptodome.Cipher import AES, ARC4
 from Cryptodome.Hash import SHA256
 from Cryptodome.Util.Padding import unpad
