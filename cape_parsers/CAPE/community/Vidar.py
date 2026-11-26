@@ -46,8 +46,6 @@ import itertools
 import re
 import sys
 
-import numpy as np
-
 
 KEYLEN = 16
 VER_OFF = 0x010          # version ciphertext
@@ -130,14 +128,23 @@ def extract_config(data: bytes) -> dict | None:
     hi = len(data) - (RECS + REC_STRIDE)
     if hi <= RECS + 4:
         return None
-    a = np.frombuffer(data, dtype=np.uint8)
-    mask = np.ones(hi, dtype=bool)
-    for i, ch in enumerate(b"http"):
-        mask &= (a[RECS + i : RECS + i + hi] ^ a[i : i + hi]) == ch
-    for off in np.nonzero(mask)[0]:
-        cfg = _try_blob(data, int(off))
-        if cfg:
-            return cfg
+    mv = memoryview(data)
+    chunk_size = 1 << 20
+    for start in range(0, hi, chunk_size):
+        end = min(start + chunk_size, hi)
+        n = end - start + 3
+        lhs = int.from_bytes(mv[start : start + n], "little")
+        rhs = int.from_bytes(mv[start + RECS : start + RECS + n], "little")
+        xored = (lhs ^ rhs).to_bytes(n, "little")
+        pos = 0
+        while True:
+            idx = xored.find(b"http", pos)
+            if idx == -1:
+                break
+            cfg = _try_blob(data, start + idx)
+            if cfg:
+                return cfg
+            pos = idx + 1
     return None
 
 

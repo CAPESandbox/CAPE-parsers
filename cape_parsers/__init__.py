@@ -127,7 +127,7 @@ def load_malwareconfig_parsers() -> Tuple[bool, dict, ModuleType]:
             return False, False, False
         return True, __decoders__, fileparser
     except ImportError:
-        log.info("Missed RATDecoders -> poetry run pip install malwareconfig")
+        log.info("Missed RATDecoders -> uv pip install malwareconfig")
     except Exception as e:
         log.exception(e)
     return False, False, False

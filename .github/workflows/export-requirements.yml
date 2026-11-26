@@ -1,37 +1,32 @@
-name: Update requirements.txt file
+name: Update requirements.txt and uv.lock
 
 on:
   push:
     branches: [ main, staging ]
     paths:
       - "pyproject.toml"
-      - "poetry.lock"
+      - "uv.lock"
 
 jobs:
   update:
     if: ${{ !github.event.act }} # skip during local actions testing
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    strategy:
-      matrix:
-        python-version: ["3.10"]
 
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-
-      - name: Install poetry
-        run: pip install poetry poetry-plugin-export --user
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
         with:
-          # check-latest: true
-          python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
+          fetch-depth: 0
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Update uv.lock
+        run: uv lock
 
       - name: Export requirements.txt
-        run: poetry export --format requirements.txt --output requirements.txt
+        run: uv export --format requirements.txt --no-dev --no-emit-project --no-header --no-annotate --output-file requirements.txt
 
       - name: Commit changes if any
         # Skip this step if being run by nektos/act
@@ -41,7 +36,7 @@ jobs:
           git config user.email "action@github.com"
           if output=$(git status --porcelain) && [ ! -z "$output" ]; then
             git pull -f
-            git add requirements.txt
-            git commit -m "ci: Update requirements.txt" -a
+            git add uv.lock requirements.txt
+            git commit -m "ci: Update requirements.txt and uv.lock"
             git push
           fi

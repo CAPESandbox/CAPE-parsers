@@ -6,15 +6,17 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ["3.12", "3.14"]
 
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Checkout test files repo
         uses: actions/checkout@v4
@@ -26,10 +28,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: |
-          sudo apt install yara
-          poetry run pip install yara-python yara-x
+      - name: Run YARA unit tests (yara-x)
+        env:
+          CAPE_PARSERS_YARA_BACKEND: yara_x
+        run: uv run python -m pytest tests/test_yara_unit.py -s --import-mode=append
 
-      - name: Run unit tests
-        run: poetry run pytest tests/test_yara_unit.py -s --import-mode=append
+      - name: Run YARA unit tests (yara-python)
+        env:
+          CAPE_PARSERS_YARA_BACKEND: yara
+        run: uv run python -m pytest tests/test_yara_unit.py -s --import-mode=append

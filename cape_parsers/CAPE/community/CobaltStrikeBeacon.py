@@ -18,16 +18,9 @@ from base64 import b64encode
 from collections import OrderedDict
 from pathlib import Path
 from socket import inet_ntoa
-from struct import unpack
+from struct import unpack, unpack_from
 
 import pefile
-
-try:
-    from netstruct import unpack as netunpack
-
-    HAVE_NETSTRUCT = True
-except ImportError:
-    HAVE_NETSTRUCT = False
 
 log = logging.getLogger(__name__)
 
@@ -63,6 +56,16 @@ def read_dword_be(fh):
     if not data or len(data) != 4:
         return None
     return unpack(">I", data)[0]
+
+
+def _unpack_len_bytes(buf: bytes, offset: int) -> bytes | None:
+    if offset + 4 > len(buf):
+        return None
+    length = unpack_from(">I", buf, offset)[0]
+    end = offset + 4 + length
+    if end > len(buf):
+        return None
+    return buf[offset + 4 : end]
 
 
 class packedSetting:
@@ -166,12 +169,17 @@ class packedSetting:
 
                     # Only EXECUTE_TYPE for now
                     else:
-                        if HAVE_NETSTRUCT:
-                            # Skipping unknown short value in the start
-                            string1 = netunpack(b"I$", conf_data[i + 3 :])[0].decode()
-                            string2 = netunpack(b"I$", conf_data[i + 3 + 4 + len(string1) :])[0].decode()
-                            ret_arr.append("{}:{}".format(string1.strip("\x00"), string2.strip("\x00")))
-                            i += len(string1) + len(string2) + 11
+                        # Skipping unknown short value in the start
+                        raw1 = _unpack_len_bytes(conf_data, i + 3)
+                        if raw1 is None:
+                            return ret_arr
+                        raw2 = _unpack_len_bytes(conf_data, i + 3 + 4 + len(raw1))
+                        if raw2 is None:
+                            return ret_arr
+                        string1 = raw1.decode()
+                        string2 = raw2.decode()
+                        ret_arr.append("{}:{}".format(string1.strip("\x00"), string2.strip("\x00")))
+                        i += len(raw1) + len(raw2) + 11
 
             elif self.is_transform:
                 if conf_data == bytes(len(conf_data)):
