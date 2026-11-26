@@ -1,5 +1,5 @@
 name: 'Python setup steps that can be reused'
-description: 'Install dependencies, poetry, requirements'
+description: 'Install system dependencies, uv, and project environment'
 inputs:
   python-version:
     required: true
@@ -12,20 +12,33 @@ runs:
       if: ${{ runner.os == 'Linux' }}
       shell: bash
       run: |
-        sudo apt-get update && sudo apt-get install -y --no-install-recommends python3-dev
+        sudo apt-get update && sudo apt-get install -y --no-install-recommends build-essential python3-dev
 
-    - name: Install poetry
+    - name: Detect runner OS cache tag
+      id: runner_os
       shell: bash
       run: |
-        PIP_BREAK_SYSTEM_PACKAGES=1 pip install poetry poetry-dynamic-versioning --user
+        if [ -r /etc/os-release ]; then
+          . /etc/os-release
+          tag="${ID:-linux}-${VERSION_ID:-unknown}"
+        else
+          tag="${RUNNER_OS:-unknown}"
+        fi
+        echo "tag=${tag}" >> "$GITHUB_OUTPUT"
 
-    - name: Set up Python ${{ inputs.python-version }}
-      uses: actions/setup-python@v5
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v7
       with:
         python-version: ${{ inputs.python-version }}
-        cache: 'poetry'
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
+        cache-suffix: "${{ steps.runner_os.outputs.tag }}-py${{ inputs.python-version }}"
 
     - name: Install requirements
       shell: bash
       run: |
-        PIP_BREAK_SYSTEM_PACKAGES=1 poetry install --no-interaction --no-root
+        uv python install "${{ inputs.python-version }}"
+        uv sync --managed-python --locked --all-groups --python "${{ inputs.python-version }}"
+        echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
+        echo "VIRTUAL_ENV=$GITHUB_WORKSPACE/.venv" >> "$GITHUB_ENV"
+        echo "UV_NO_SYNC=1" >> "$GITHUB_ENV"

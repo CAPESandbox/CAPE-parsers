@@ -1,78 +1,81 @@
-[tool.poetry]
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
 name = "CAPE-parsers"
-version = "0.1.69"
+dynamic = ["version"]
 description = "CAPE: Malware Configuration Extraction"
-authors = ["Kevin O'Reilly <kev@capesandbox.com>", "doomedraven <doomedraven@capesandbox.com>"]
-license = "MIT"
 readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Kevin O'Reilly", email = "kev@capesandbox.com" },
+    { name = "doomedraven", email = "doomedraven@capesandbox.com" },
+]
+keywords = ["cape", "parsers", "malware", "configuration"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+requires-python = ">=3.12, <4.0"
+dependencies = [
+    "pefile",
+    "pycryptodomex>=3.20.0",
+    "yara-python>=4.5.1",
+    "yara-x>=1.0.0",
+    "dnfile>=0.15.1",
+    "dncil>=1.0.2",
+    "unicorn>=2.1.4",
+    "rat-king-parser>=4.1.0",
+]
 
-include = ["cape_parsers/**"]
-keywords = [ "cape", "parsers", "malware", "configuration"]
+[project.optional-dependencies]
+maco = ["maco>=1.1.8"]
 
-packages = [{ include = "cape_parsers" }]
+[dependency-groups]
+dev = [
+    "pytest>=9.0.0",
+    "ruff>=0.7.2",
+]
 
+[tool.hatch.version]
+source = "vcs"
 
-[tool.poetry.dependencies]
-python = ">=3.10, <4.0"
-pefile = "*"
-capstone = ">=4.0.2"
-pycryptodomex = ">=3.20.0"
-# regex = ">=2021.7.6"
-netstruct = "1.1.2"
-maco = "1.1.8"
-yara-python = ">=4.5.1"
-yara-x = ">=1.0.0"
-dnfile = ">=0.15.1"
-dncil = ">=1.0.2"
-unicorn = ">=2.1.1"
-rat-king-parser = ">=4.1.0"
+[tool.hatch.build.targets.wheel]
+packages = ["cape_parsers"]
+artifacts = ["cape_parsers/utils/blzpack_lib.so"]
 
-ruff = ">=0.7.2"
-
-[tool.distutils.bdist_wheel]
-universal = false
-
-[tool.poetry.extras]
-maco = ["maco"]
-
-[tool.poetry.group.dev.dependencies]
-pytest = "7.2.2"
-pytest-pretty = "1.1.0"
-pytest-cov = "3.0.0"
-pytest-mock = "3.7.0"
-pytest_asyncio = "0.18.3"
-pytest-xdist = "3.6.1"
-pytest-asyncio = "0.18.3"
-pytest-freezer = "0.4.8"
-tenacity = "8.1.0"
-httpretty = "^1.1.4"
-func-timeout = "^4.3.5"
-pre-commit = "^2.19.0"
+[tool.hatch.build.targets.sdist]
+include = [
+    "/cape_parsers",
+    "/tests",
+    "/tests_parsers",
+    "/README.md",
+    "/LICENSE",
+]
+artifacts = ["cape_parsers/utils/blzpack_lib.so"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
-norecursedirs = "tests/zip_compound"
-asyncio_mode = "auto"
-
-[tool.poetry-dynamic-versioning]
-enable = true # Master switch to enable the plugin
-
-[build-system]
-requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
-build-backend = "poetry.core.masonry.api"
+norecursedirs = ["tests/zip_compound"]
 
 [tool.ruff]
 line-length = 132
+target-version = "py312"
 
 [tool.ruff.lint]
 select = [
-	"F",       # pyflakes
-	"E",       # pycodestyle errors
-	"W",       # pycodestyle warnings
-	# "I",       # isort
-	# "N",       # pep8-naming
-	"G",       # flake8-logging-format
+    "F",       # pyflakes
+    "E",       # pycodestyle errors
+    "W",       # pycodestyle warnings
+    # "I",       # isort
+    # "N",       # pep8-naming
+    "G",       # flake8-logging-format
 ]
 
 ignore = [
@@ -80,11 +83,9 @@ ignore = [
     "N818",    # exceptions don't need the Error suffix
     "E741",    # allow ambiguous variable names
     "E402",
-    "W605",    # ToDo to fix - Invalid escape sequence
 ]
 
 fixable = ["ALL"]
-
 
 [tool.ruff.format]
 quote-style = "double"
@@ -93,7 +94,7 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 
 [tool.ruff.lint.isort]
-known-first-party = ["libqtile", "test"]
+known-first-party = ["cape_parsers", "tests"]
 default-section = "third-party"
 
 [tool.mypy]

@@ -1,10 +1,12 @@
 .DS_Store
 */.DS_Store
 *.pyc
+*.orig
+__pycache__/
 dist/*
+.venv/
 GEMINI.md
 .idea
-.github
 .claude
 .pytest_cache
 .ruff_cache
